@@ -1,5 +1,6 @@
 package com.fongmi.android.tv.ui.fragment;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.fongmi.android.tv.impl.PasswordCallback;
 import com.fongmi.android.tv.ui.base.BaseFragment;
 import com.fongmi.android.tv.ui.dialog.PasswordDialog;
 import com.fongmi.android.tv.utils.ResUtil;
+import com.fongmi.android.tv.utils.SpUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
@@ -24,6 +26,8 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
 
     private FragmentSettingCustomBinding mBinding;
     private String[] size;
+
+    private String defaultPassword="86383728";
 
     public static SettingCustomFragment newInstance() {
         return new SettingCustomFragment();
@@ -46,7 +50,11 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.incognitoText.setText(getSwitch(Setting.isIncognito()));
         mBinding.aggregatedSearchText.setText(getSwitch(Setting.isAggregatedSearch()));
         mBinding.homeChangeConfigText.setText(getSwitch(Setting.isHomeChangeConfig()));
-        mBinding.homePasswordConfigText.setText("86383728");
+        String word= SpUtils.getString("password");
+        if (!TextUtils.isEmpty(word)){
+            defaultPassword=word;
+        }
+        mBinding.homePasswordConfigText.setText(defaultPassword);
     }
 
     @Override
