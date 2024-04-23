@@ -15,6 +15,7 @@ import androidx.core.os.HandlerCompat;
 import com.fongmi.android.tv.api.config.LiveConfig;
 import com.fongmi.android.tv.ui.activity.CrashActivity;
 import com.fongmi.android.tv.utils.Notify;
+import com.fongmi.android.tv.utils.SpUtils;
 import com.github.catvod.Init;
 import com.github.catvod.bean.Doh;
 import com.github.catvod.net.OkHttp;
@@ -105,6 +106,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         Notify.createChannel();
+        SpUtils.init(this,"tv");
         Logger.addLogAdapter(getLogAdapter());
         OkHttp.get().setProxy(Setting.getProxy());
         OkHttp.get().setDoh(Doh.objectFrom(Setting.getDoh()));

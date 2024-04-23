@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('D:\\Xshuai\\xshuai.keystore')
+            storePassword 'android'
+            keyPassword 'android'
+            keyAlias 'androiddebugkey'
+        }
+    }
     compileSdk 34
     flavorDimensions = ["mode", "api", "abi"]
 
@@ -10,8 +18,8 @@ android {
         applicationId "com.fongmi.android.tv"
         minSdk 21
         targetSdk 28
-        versionCode 233
-        versionName "2.3.3"
+        versionCode 234
+        versionName "2.3.4"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
@@ -55,6 +63,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 

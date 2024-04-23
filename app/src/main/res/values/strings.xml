@@ -87,6 +87,7 @@
     <string name="setting_incognito">Incognito mode</string>
     <string name="setting_small_window_back_key">Small window back key</string>
     <string name="setting_home_change_config">Home change config</string>
+    <string name="setting_home_password">Home password</string>
     <string name="setting_home_ui">Home ui style</string>
     <string name="setting_home_buttons">Home buttons</string>
     <string name="setting_doh">DoH</string>
@@ -132,6 +133,7 @@
     <string name="dialog_negative">Cancel</string>
     <string name="dialog_config_hint">Please enter the config…</string>
     <string name="dialog_config_name">Please enter the name…</string>
+    <string name="dialog_config_password">Please enter the password…</string>
     <string name="dialog_config_url">Please enter the url…</string>
     <string name="dialog_delete_record">Delete all records?</string>
     <string name="dialog_delete_keep">All keep records will be removed.</string>

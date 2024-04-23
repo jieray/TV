@@ -21,6 +21,8 @@ import com.fongmi.android.tv.utils.FileChooser;
 import com.fongmi.android.tv.utils.UrlUtil;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.Objects;
+
 public class ConfigDialog {
 
     private final DialogConfigBinding binding;
@@ -30,6 +32,7 @@ public class ConfigDialog {
     private boolean append;
     private boolean edit;
     private String ori;
+    private String defaultUrl="https://mirror.ghproxy.com/https://github.com/jieray/TVB/blob/main/0808.json";
     private int type;
 
     public static ConfigDialog create(Fragment fragment) {
@@ -66,8 +69,9 @@ public class ConfigDialog {
     }
 
     private void initView() {
+        ori = TextUtils.isEmpty(Objects.requireNonNull(getConfig()).getUrl())?defaultUrl:getConfig().getUrl();
         binding.name.setText(getConfig().getName());
-        binding.url.setText(ori = getConfig().getUrl());
+        binding.url.setText(ori);
         binding.input.setVisibility(edit ? View.VISIBLE : View.GONE);
         binding.url.setSelection(TextUtils.isEmpty(ori) ? 0 : ori.length());
     }

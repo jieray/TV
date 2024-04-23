@@ -12,13 +12,15 @@ import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.Setting;
 import com.fongmi.android.tv.databinding.FragmentSettingCustomBinding;
 import com.fongmi.android.tv.event.RefreshEvent;
+import com.fongmi.android.tv.impl.PasswordCallback;
 import com.fongmi.android.tv.ui.base.BaseFragment;
+import com.fongmi.android.tv.ui.dialog.PasswordDialog;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
 
-public class SettingCustomFragment extends BaseFragment {
+public class SettingCustomFragment extends BaseFragment implements PasswordCallback {
 
     private FragmentSettingCustomBinding mBinding;
     private String[] size;
@@ -44,6 +46,7 @@ public class SettingCustomFragment extends BaseFragment {
         mBinding.incognitoText.setText(getSwitch(Setting.isIncognito()));
         mBinding.aggregatedSearchText.setText(getSwitch(Setting.isAggregatedSearch()));
         mBinding.homeChangeConfigText.setText(getSwitch(Setting.isHomeChangeConfig()));
+        mBinding.homePasswordConfigText.setText("86383728");
     }
 
     @Override
@@ -56,11 +59,16 @@ public class SettingCustomFragment extends BaseFragment {
         mBinding.incognito.setOnClickListener(this::setIncognito);
         mBinding.aggregatedSearch.setOnClickListener(this::setAggregatedSearch);
         mBinding.homeChangeConfig.setOnClickListener(this::setHomeChangeConfig);
+        mBinding.homePassword.setOnClickListener(this::onPassword);
     }
 
     private boolean onTitle(View view) {
         mBinding.danmuSync.setVisibility(View.VISIBLE);
         return true;
+    }
+
+    private void onPassword(View view){
+        PasswordDialog.create(this).type(1).show();
     }
 
     private void setSize(View view) {
@@ -111,4 +119,8 @@ public class SettingCustomFragment extends BaseFragment {
         RefreshEvent.config();
     }
 
+    @Override
+    public void setPassword(String password) {
+        mBinding.homePasswordConfigText.setText(password);
+    }
 }

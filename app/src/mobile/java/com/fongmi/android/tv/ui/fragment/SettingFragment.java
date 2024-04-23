@@ -1,6 +1,7 @@
 package com.fongmi.android.tv.ui.fragment;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -82,6 +83,7 @@ public class SettingFragment extends BaseFragment implements ConfigCallback, Sit
         return mBinding = FragmentSettingBinding.inflate(inflater, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void initView() {
         mBinding.vodUrl.setText(VodConfig.getDesc());
@@ -89,7 +91,7 @@ public class SettingFragment extends BaseFragment implements ConfigCallback, Sit
         mBinding.wallUrl.setText(WallConfig.getDesc());
         mBinding.backupText.setText(AppDatabase.getDate());
         mBinding.dohText.setText(getDohList()[getDohIndex()]);
-        mBinding.versionText.setText(BuildConfig.VERSION_NAME);
+        mBinding.versionText.setText("一骁 "+BuildConfig.VERSION_NAME);
         mBinding.proxyText.setText(UrlUtil.scheme(Setting.getProxy()));
         mBinding.configCacheText.setText((configCache = ResUtil.getStringArray(R.array.select_config_cache))[Setting.getConfigCache()]);
         setCacheText();

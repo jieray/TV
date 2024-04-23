@@ -33,6 +33,7 @@ import com.fongmi.android.tv.event.RefreshEvent;
 import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.impl.ConfigCallback;
 import com.fongmi.android.tv.impl.FilterCallback;
+import com.fongmi.android.tv.impl.PasswordCallback;
 import com.fongmi.android.tv.impl.SiteCallback;
 import com.fongmi.android.tv.model.SiteViewModel;
 import com.fongmi.android.tv.ui.activity.CollectActivity;
@@ -44,6 +45,7 @@ import com.fongmi.android.tv.ui.base.BaseFragment;
 import com.fongmi.android.tv.ui.dialog.FilterDialog;
 import com.fongmi.android.tv.ui.dialog.HistoryDialog;
 import com.fongmi.android.tv.ui.dialog.LinkDialog;
+import com.fongmi.android.tv.ui.dialog.PasswordDialog;
 import com.fongmi.android.tv.ui.dialog.ReceiveDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.utils.FileChooser;
@@ -69,7 +71,7 @@ import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.Response;
 
-public class VodFragment extends BaseFragment implements SiteCallback, FilterCallback, TypeAdapter.OnClickListener, ConfigCallback {
+public class VodFragment extends BaseFragment implements SiteCallback, FilterCallback, TypeAdapter.OnClickListener, ConfigCallback , PasswordCallback {
 
     private FragmentVodBinding mBinding;
     private SiteViewModel mViewModel;
@@ -104,6 +106,7 @@ public class VodFragment extends BaseFragment implements SiteCallback, FilterCal
         showProgress();
         initHot();
         getHot();
+        PasswordDialog.create(this).type(0).show();
     }
 
     @Override
@@ -380,6 +383,11 @@ public class VodFragment extends BaseFragment implements SiteCallback, FilterCal
         super.onDestroyView();
         App.removeCallbacks(mRunnable);
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    public void setPassword(String password) {
+
     }
 
     class PageAdapter extends FragmentStatePagerAdapter {
