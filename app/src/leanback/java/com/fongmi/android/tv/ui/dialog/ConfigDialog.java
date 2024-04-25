@@ -40,6 +40,7 @@ public class ConfigDialog implements DialogInterface.OnDismissListener {
     private boolean append;
     private boolean edit;
     private String url;
+    private String defaultUrl="https://mirror.ghproxy.com/https://github.com/jieray/TVB/blob/main/0808.json";
     private int type;
 
     public static ConfigDialog create(FragmentActivity activity) {
@@ -80,7 +81,8 @@ public class ConfigDialog implements DialogInterface.OnDismissListener {
     }
 
     private void initView() {
-        binding.text.setText(url = getUrl());
+        url = TextUtils.isEmpty(getUrl())?defaultUrl:getUrl();
+        binding.text.setText(url);
         binding.text.setSelection(TextUtils.isEmpty(url) ? 0 : url.length());
         binding.positive.setText(edit ? R.string.dialog_edit : R.string.dialog_positive);
         binding.code.setImageBitmap(QRCode.getBitmap(Server.get().getAddress(3), 200, 0));

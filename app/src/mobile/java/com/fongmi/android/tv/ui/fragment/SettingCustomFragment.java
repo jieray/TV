@@ -17,7 +17,6 @@ import com.fongmi.android.tv.impl.PasswordCallback;
 import com.fongmi.android.tv.ui.base.BaseFragment;
 import com.fongmi.android.tv.ui.dialog.PasswordDialog;
 import com.fongmi.android.tv.utils.ResUtil;
-import com.fongmi.android.tv.utils.SpUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
@@ -50,11 +49,12 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.incognitoText.setText(getSwitch(Setting.isIncognito()));
         mBinding.aggregatedSearchText.setText(getSwitch(Setting.isAggregatedSearch()));
         mBinding.homeChangeConfigText.setText(getSwitch(Setting.isHomeChangeConfig()));
-        String word= SpUtils.getString("password");
+        String word=  Setting.getPassword();
         if (!TextUtils.isEmpty(word)){
             defaultPassword=word;
         }
         mBinding.homePasswordConfigText.setText(defaultPassword);
+        mBinding.homePasswordSetText.setText(getSwitch(Setting.isPassWord()));
     }
 
     @Override
@@ -68,6 +68,7 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.aggregatedSearch.setOnClickListener(this::setAggregatedSearch);
         mBinding.homeChangeConfig.setOnClickListener(this::setHomeChangeConfig);
         mBinding.homePassword.setOnClickListener(this::onPassword);
+        mBinding.homePasswordSet.setOnClickListener(this::setPassword);
     }
 
     private boolean onTitle(View view) {
@@ -91,6 +92,11 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
     private void setDanmuSync(View view) {
         Setting.putDanmuSync(!Setting.isDanmuSync());
         mBinding.danmuSyncText.setText(getSwitch(Setting.isDanmuSync()));
+    }
+
+    private void setPassword(View view){
+        Setting.putPasswordSet(!Setting.isPassWord());
+        mBinding.homePasswordSetText.setText(getSwitch(Setting.isPassWord()));
     }
 
     private String getSpeedText() {

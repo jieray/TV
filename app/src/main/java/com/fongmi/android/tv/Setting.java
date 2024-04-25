@@ -33,9 +33,19 @@ public class Setting {
         Prefers.put("keep", keep);
     }
 
+    public static String getPassword() {
+        return Prefers.getString("password");
+    }
+
+    public static void putPassword(String password) {
+        Prefers.put("password", password);
+    }
+
+
     public static String getKeyword() {
         return Prefers.getString("keyword");
     }
+
 
     public static void putKeyword(String keyword) {
         Prefers.put("keyword", keyword);
@@ -249,9 +259,18 @@ public class Setting {
         Prefers.put("danmu", danmu);
     }
 
+    public static void putPasswordSet(boolean pass) {
+        Prefers.put("pass_load", pass);
+    }
+
+    public static boolean isPassWord() {
+        return Prefers.getBoolean("pass_load", true);
+    }
+
     public static boolean isDanmuLoad() {
         return Prefers.getBoolean("danmu_load", true);
     }
+
 
     public static void putDanmuLoad(boolean load) {
         Prefers.put("danmu_load", load);

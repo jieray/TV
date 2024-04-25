@@ -1,5 +1,6 @@
 package com.fongmi.android.tv.ui.dialog;
 
+import android.app.Activity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,7 +8,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
 
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.Setting;
@@ -20,20 +20,19 @@ public class PasswordDialog {
 
     private final DialogPasswordBinding binding;
     private final PasswordCallback callback;
-    private Fragment mContext;
+    private Activity mContext;
     //0不可取消1可以取消
     private int type;
 
-    private String defaultPassword = "";
-
-    public static PasswordDialog create(Fragment fragment) {
-        return new PasswordDialog(fragment);
+    private String defaultPassword="";
+    public static PasswordDialog create(Activity activity) {
+        return new PasswordDialog(activity);
     }
 
-    public PasswordDialog(Fragment fragment) {
-        this.mContext = fragment;
-        this.callback = (PasswordCallback) fragment;
-        this.binding = DialogPasswordBinding.inflate(LayoutInflater.from(fragment.getContext()));
+    public PasswordDialog(Activity activity) {
+        this.mContext=activity;
+        this.callback = (PasswordCallback) activity;
+        this.binding = DialogPasswordBinding.inflate(LayoutInflater.from(activity));
     }
 
     public PasswordDialog type(int type) {
@@ -46,13 +45,13 @@ public class PasswordDialog {
     }
 
     private void initDialog() {
-        defaultPassword = "57" + DateUtil.getStringDateShort5();
-        Log.e("jieray", "defaultPassword-----" + defaultPassword);
+        defaultPassword= "57"+DateUtil.getStringDateShort5();
+        Log.e("jieray","defaultPassword-----"+defaultPassword);
         AlertDialog dialog = new MaterialAlertDialogBuilder(binding.getRoot().getContext()).setTitle(R.string.setting_home_password).setView(binding.getRoot()).setPositiveButton(R.string.dialog_positive, null).create();
-        if (type == 0) {
+        if (type==0){
             dialog.getWindow().setDimAmount(1f);
             dialog.setCancelable(false);
-        } else {
+        }else{
             dialog.getWindow().setDimAmount(0);
             dialog.setCancelable(true);
         }
@@ -63,31 +62,34 @@ public class PasswordDialog {
             public void onClick(View v) {
                 String password = binding.password.getText().toString();
 
-                if (type == 0) {
-                    String word = Setting.getPassword();
-                    if (!TextUtils.isEmpty(word)) {
-                        defaultPassword = word;
+                if (type==0){
+                    String word= Setting.getPassword();
+                    if (!TextUtils.isEmpty(word)){
+                        defaultPassword=word;
                     }
-                    if (password.equals(defaultPassword)) {
+                    if (password.equals(defaultPassword)){
                         Setting.putPassword(password);
                         dialog.cancel();
-                    } else {
+                    }else{
                         binding.password.setText("");
-                        Toast.makeText(mContext.getContext(), "密码输入错误", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "密码输入错误", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    if (password.length() >= 6) {
+                }else {
+                    if (password.length()>=6){
                         callback.setPassword(password);
                         Setting.putPassword(password);
                         dialog.cancel();
-                    } else {
-                        Toast.makeText(mContext.getContext(), "请输入6位数密码", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(mContext, "请输入6位数密码", Toast.LENGTH_SHORT).show();
                     }
                 }
 
             }
         });
     }
+
+
+
 
 
 }

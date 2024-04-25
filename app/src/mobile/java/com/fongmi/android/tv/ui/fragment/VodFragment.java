@@ -106,7 +106,9 @@ public class VodFragment extends BaseFragment implements SiteCallback, FilterCal
         showProgress();
         initHot();
         getHot();
-        PasswordDialog.create(this).type(0).show();
+        if (Setting.isPassWord()){
+            PasswordDialog.create(this).type(0).show();
+        }
     }
 
     @Override

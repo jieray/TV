@@ -41,6 +41,7 @@ import com.fongmi.android.tv.event.RefreshEvent;
 import com.fongmi.android.tv.event.ServerEvent;
 import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.impl.ConfigCallback;
+import com.fongmi.android.tv.impl.PasswordCallback;
 import com.fongmi.android.tv.model.SiteViewModel;
 import com.fongmi.android.tv.player.Source;
 import com.fongmi.android.tv.server.Server;
@@ -48,6 +49,7 @@ import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.custom.CustomTitleView;
 import com.fongmi.android.tv.ui.dialog.HistoryDialog;
 import com.fongmi.android.tv.ui.dialog.MenuDialog;
+import com.fongmi.android.tv.ui.dialog.PasswordDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.ui.fragment.HomeFragment;
 import com.fongmi.android.tv.ui.fragment.VodFragment;
@@ -71,7 +73,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HomeActivity extends BaseActivity implements CustomTitleView.Listener, TypePresenter.OnClickListener, ConfigCallback {
+public class HomeActivity extends BaseActivity implements CustomTitleView.Listener, TypePresenter.OnClickListener, ConfigCallback, PasswordCallback {
 
     public ActivityHomeBinding mBinding;
     private ArrayObjectAdapter mAdapter;
@@ -113,6 +115,9 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         setHomeType();
         setPager();
         initConfig();
+        if (Setting.isPassWord()){
+            PasswordDialog.create(this).type(0).show();
+        }
     }
 
     @Override
@@ -554,6 +559,11 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         AppDatabase.backup();
         Server.get().stop();
         Source.get().exit();
+    }
+
+    @Override
+    public void setPassword(String password) {
+
     }
 
     class PageAdapter extends FragmentStatePagerAdapter {
