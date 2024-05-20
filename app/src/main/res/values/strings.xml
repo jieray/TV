@@ -80,14 +80,17 @@
     <string name="setting_quality">Image quality</string>
     <string name="setting_size">Image size</string>
     <string name="setting_aggregated_search">Aggregated search</string>
+    <string name="setting_language">Lanuage setting</string>
     <string name="setting_parse_webview">Parse webview</string>
     <string name="setting_fullscreen_menu_key">Fullscreen menu key</string>
     <string name="setting_home_menu_key">Home menu key</string>
     <string name="setting_home_site_lock">Home site lock</string>
     <string name="setting_incognito">Incognito mode</string>
+    <string name="setting_remove_ad">Remove ads</string>
     <string name="setting_small_window_back_key">Small window back key</string>
     <string name="setting_home_change_config">Home change config</string>
     <string name="setting_home_password">Home password</string>
+    <string name="setting_home_display_name">Home display name</string>
     <string name="setting_home_ui">Home ui style</string>
     <string name="setting_home_buttons">Home buttons</string>
     <string name="setting_doh">DoH</string>
@@ -96,6 +99,7 @@
     <string name="setting_backup">Backup</string>
     <string name="setting_backup_auto">Auto</string>
     <string name="setting_version">Version</string>
+    <string name="setting_about">About</string>
     <string name="setting_storage">Permission</string>
     <string name="setting_off">Off</string>
     <string name="setting_on">On</string>
@@ -140,6 +144,8 @@
     <string name="dialog_delete_history">All history records will be removed.</string>
     <string name="dialog_reset_app">Reset app?</string>
     <string name="dialog_reset_app_data">All app data will be reset, and app will be shutdown.</string>
+    <string name="dialog_restore">Restore backup data?</string>
+    <string name="dialog_restore_msg">Config, history and setting will be restored.</string>
 
     <!-- Error -->
     <string name="error_config_get">Configuration get failed</string>
@@ -259,6 +265,12 @@
         <item>Push page</item>
         <item>Keep page</item>
         <item>Setting page</item>
+    </string-array>
+
+    <string-array name="select_language">
+        <item>English</item>
+        <item>Simplified Chinese</item>
+        <item>Traditional Chinese</item>
     </string-array>
 
     <string-array name="select_parse_webview">

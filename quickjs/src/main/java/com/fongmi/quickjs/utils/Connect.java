@@ -75,7 +75,7 @@ public class Connect {
     }
 
     private static RequestBody getJsonBody(Req req) {
-        return RequestBody.create(req.getData().toString(), MediaType.get("application/json"));
+        return RequestBody.create(req.getData().toString(), MediaType.get("application/json; charset=utf-8"));
     }
 
     private static RequestBody getRawBody(Req req) {

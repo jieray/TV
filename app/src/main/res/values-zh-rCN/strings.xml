@@ -80,12 +80,15 @@
     <string name="setting_quality">图片品质</string>
     <string name="setting_size">图片尺寸</string>
     <string name="setting_aggregated_search">聚合搜索</string>
+    <string name="setting_language">语言设置</string>
     <string name="setting_parse_webview">嗅探内核</string>
     <string name="setting_fullscreen_menu_key">全屏菜单键</string>
     <string name="setting_home_menu_key">首页菜单键</string>
     <string name="setting_home_site_lock">首页源锁定</string>
     <string name="setting_incognito">无痕模式</string>
+    <string name="setting_remove_ad">AI去广告</string>
     <string name="setting_small_window_back_key">小窗返回键</string>
+    <string name="setting_home_display_name">首页显示站源</string>
     <string name="setting_home_change_config">首页换线</string>
     <string name="setting_home_password">密码</string>
     <string name="setting_home_ui">首页UI</string>
@@ -96,6 +99,7 @@
     <string name="setting_backup">备份</string>
     <string name="setting_backup_auto">自动</string>
     <string name="setting_version">版本</string>
+    <string name="setting_about">关于</string>
     <string name="setting_storage">权限</string>
     <string name="setting_off">关闭</string>
     <string name="setting_on">开启</string>
@@ -140,6 +144,8 @@
     <string name="dialog_delete_history">观看纪录将会全部删除。</string>
     <string name="dialog_reset_app">重置App?</string>
     <string name="dialog_reset_app_data">所有数据将会被重置，App即将被关闭.</string>
+    <string name="dialog_restore">还原备份数据？</string>
+    <string name="dialog_restore_msg">将会还原配置、观看纪录及各项设置。</string>
 
     <!-- Error -->
     <string name="error_config_get">配置取得失败</string>
@@ -259,6 +265,12 @@
         <item>推送页面</item>
         <item>收藏页面</item>
         <item>设置页面</item>
+    </string-array>
+
+    <string-array name="select_language">
+        <item>英文</item>
+        <item>简体中文</item>
+        <item>繁体中文</item>
     </string-array>
 
     <string-array name="select_parse_webview">

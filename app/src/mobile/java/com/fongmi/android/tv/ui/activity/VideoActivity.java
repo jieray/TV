@@ -107,6 +107,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -310,7 +311,7 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
         mObserveSearch = this::setSearch;
         mDialogs = new ArrayList<>();
         mBroken = new ArrayList<>();
-        mClock = Clock.create(mBinding.display.time);
+        mClock = Clock.create(Arrays.asList(mBinding.display.time, mBinding.control.time));
         mR0 = this::stopService;
         mR1 = this::hideControl;
         mR2 = this::setTraffic;
@@ -804,7 +805,7 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
     }
 
     private void onTrack(View view) {
-        TrackDialog.create().player(mPlayers).type(Integer.parseInt(view.getTag().toString())).show(this);
+        TrackDialog.create().player(mPlayers).vod(true).type(Integer.parseInt(view.getTag().toString())).show(this);
         hideControl();
     }
 
@@ -1029,6 +1030,7 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
         mBinding.control.danmu.setVisibility(isLock() || !mBinding.danmaku.isPrepared() ? View.GONE : View.VISIBLE);
         mBinding.control.danmuSetting.setVisibility(isLock() || !Setting.isDanmuLoad() || !isVisible(mBinding.danmaku) ? View.GONE : View.VISIBLE);
         mBinding.control.setting.setVisibility(mHistory == null || isFullscreen() ? View.GONE : View.VISIBLE);
+        mBinding.control.batteryInfo.setVisibility(isFullscreen() ? View.VISIBLE : View.GONE);
         mBinding.control.right.rotate.setVisibility(isFullscreen() && !isLock() ? View.VISIBLE : View.GONE);
         mBinding.control.keep.setVisibility(mHistory == null ? View.GONE : View.VISIBLE);
         mBinding.control.right.back.setVisibility(isFullscreen() && !isLock() ? View.VISIBLE : View.GONE);
@@ -1043,6 +1045,7 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
         mBinding.control.getRoot().setVisibility(View.VISIBLE);
         showDisplayInfo();
         checkPlayImg(mPlayers.isPlaying());
+        checkBatteryImg();
         setR1Callback();
     }
 
@@ -1171,6 +1174,16 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
 
     private void checkDanmuImg() {
         mBinding.control.danmu.setImageResource(Setting.isDanmu() ? R.drawable.ic_control_danmu_on : R.drawable.ic_control_danmu_off);
+    }
+
+    private void checkBatteryImg() {
+        int batteryLevel = Util.batteryLevel();
+        int resId = R.drawable.ic_battery_00;
+        if (batteryLevel >= 90) resId = R.drawable.ic_battery_full;
+        else if (batteryLevel >= 60) resId = R.drawable.ic_battery_75;
+        else if (batteryLevel >= 40) resId = R.drawable.ic_battery_50;
+        else if (batteryLevel >= 10) resId = R.drawable.ic_battery_25;
+        mBinding.control.battery.setImageResource(resId);
     }
 
     private void createKeep() {

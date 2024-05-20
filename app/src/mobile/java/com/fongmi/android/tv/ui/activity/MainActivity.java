@@ -27,6 +27,7 @@ import com.fongmi.android.tv.databinding.ActivityMainBinding;
 import com.fongmi.android.tv.db.AppDatabase;
 import com.fongmi.android.tv.event.RefreshEvent;
 import com.fongmi.android.tv.event.ServerEvent;
+import com.fongmi.android.tv.event.StateEvent;
 import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.player.Source;
 import com.fongmi.android.tv.receiver.ShortcutReceiver;
@@ -40,6 +41,7 @@ import com.fongmi.android.tv.ui.fragment.VodFragment;
 import com.fongmi.android.tv.utils.FileChooser;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.UrlUtil;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
 import com.permissionx.guolindev.PermissionX;
 
@@ -120,20 +122,24 @@ public class MainActivity extends BaseActivity implements NavigationBarView.OnIt
 
             @Override
             public void error(String msg) {
-                if (TextUtils.isEmpty(msg) && AppDatabase.getBackup().exists()) onRestore();
-                else RefreshEvent.empty();
+                if (TextUtils.isEmpty(msg) && AppDatabase.getBackup().exists()) showRestoreDialog();
                 RefreshEvent.config();
+                StateEvent.empty();
                 Notify.show(msg);
             }
         };
+    }
+
+    private void showRestoreDialog() {
+        new MaterialAlertDialogBuilder(this).setTitle(R.string.dialog_restore).setMessage(R.string.dialog_restore_msg).setNegativeButton(R.string.dialog_negative, null).setPositiveButton(R.string.dialog_positive, (dialog, which) -> onRestore()).show();
     }
 
     private void onRestore() {
         PermissionX.init(this).permissions(Manifest.permission.WRITE_EXTERNAL_STORAGE).request((allGranted, grantedList, deniedList) -> AppDatabase.restore(new Callback() {
             @Override
             public void success() {
+                if (allGranted) StateEvent.progress();
                 if (allGranted) initConfig();
-                else RefreshEvent.empty();
             }
         }));
     }

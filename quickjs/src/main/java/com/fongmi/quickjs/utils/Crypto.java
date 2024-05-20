@@ -27,7 +27,6 @@ public class Crypto {
         }
     }
 
-
     public static String aes(String mode, boolean encrypt, String input, boolean inBase64, String key, String iv, boolean outBase64) {
         try {
             byte[] keyBuf = key.getBytes();
