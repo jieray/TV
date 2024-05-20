@@ -57,7 +57,6 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.removeAdText.setText(getSwitch(Setting.isRemoveAd()));
         mBinding.languageText.setText((lang = ResUtil.getStringArray(R.array.select_language))[Setting.getLanguage()]);
         mBinding.configCacheText.setText((configCache = ResUtil.getStringArray(R.array.select_config_cache))[Setting.getConfigCache()]);
-        mBinding.homeChangeConfigText.setText(getSwitch(Setting.isHomeChangeConfig()));
         String word=  Setting.getPassword();
         if (!TextUtils.isEmpty(word)){
             defaultPassword=word;
@@ -81,7 +80,6 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.configCache.setOnClickListener(this::setConfigCache);
         mBinding.reset.setOnClickListener(this::onReset);
 
-        mBinding.homeChangeConfig.setOnClickListener(this::setHomeChangeConfig);
         mBinding.homePassword.setOnClickListener(this::onPassword);
         mBinding.homePasswordSet.setOnClickListener(this::setPassword);
     }
