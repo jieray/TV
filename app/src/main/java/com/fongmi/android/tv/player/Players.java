@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -92,6 +93,10 @@ public class Players implements Player.Listener, IMediaPlayer.Listener, Analytic
 
     public static boolean isHard(int player) {
         return Setting.getDecode(player) == HARD;
+    }
+
+    public static boolean isSoft(int player) {
+        return Setting.getDecode(player) == SOFT;
     }
 
     public boolean isExo() {
@@ -250,6 +255,10 @@ public class Players implements Player.Listener, IMediaPlayer.Listener, Analytic
         return danmuView != null && danmuView.isPrepared();
     }
 
+    public boolean canAdjustSpeed() {
+        return isIjk() || (isExo() && !Setting.isTunnel());
+    }
+
     public boolean haveTrack(int type) {
         if (isExo() && exoPlayer != null) return ExoUtil.haveTrack(exoPlayer.getCurrentTracks(), type);
         if (isIjk() && ijkPlayer != null) return ijkPlayer.haveTrack(type);
@@ -299,7 +308,7 @@ public class Players implements Player.Listener, IMediaPlayer.Listener, Analytic
     }
 
     public String setSpeed(float speed) {
-        if (exoPlayer != null) exoPlayer.setPlaybackSpeed(this.speed = speed);
+        if (exoPlayer != null && !Setting.isTunnel()) exoPlayer.setPlaybackSpeed(this.speed = speed);
         if (ijkPlayer != null) ijkPlayer.setSpeed(this.speed = speed);
         return getSpeedText();
     }
@@ -575,6 +584,12 @@ public class Players implements Player.Listener, IMediaPlayer.Listener, Analytic
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, String> entry : getHeaders().entrySet()) list.addAll(Arrays.asList(entry.getKey(), entry.getValue()));
         return list.toArray(new String[0]);
+    }
+
+    public Bundle getHeaderBundle() {
+        Bundle bundle = new Bundle();
+        for (Map.Entry<String, String> entry : getHeaders().entrySet()) bundle.putString(entry.getKey(), entry.getValue());
+        return bundle;
     }
 
     public void checkData(Intent data) {

@@ -107,6 +107,7 @@ dependencies {
     implementation project(':catvod')
     implementation project(':quickjs')
     implementation project(':thunder')
+    implementation project(':youtube')
     implementation project(':jianpian')
     implementation project(':forcetech')
     implementation project(':ijkplayer')

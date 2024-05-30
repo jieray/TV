@@ -336,7 +336,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
             @Override
             public void error(String msg) {
-                if (TextUtils.isEmpty(msg) && AppDatabase.getBackup().exists()) RestoreDialog.create(getActivity()).show();
                 if (getHomeFragment().init) getHomeFragment().mBinding.progressLayout.showContent();
                 else App.post(() -> getHomeFragment().mBinding.progressLayout.showContent(), 1000);
                 mResult = Result.empty();
@@ -344,17 +343,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
                 setLoading(false);
             }
         };
-    }
-
-    @Override
-    public void onRestore() {
-        PermissionX.init(this).permissions(Manifest.permission.WRITE_EXTERNAL_STORAGE).request((allGranted, grantedList, deniedList) -> AppDatabase.restore(new Callback() {
-            @Override
-            public void success() {
-                if (allGranted && getHomeFragment().init) getHomeFragment().mBinding.progressLayout.showProgress();
-                if (allGranted) initConfig();
-            }
-        }));
     }
 
     private void load(Config config, String success) {
