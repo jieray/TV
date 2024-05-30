@@ -99,7 +99,6 @@ public class SettingFragment extends BaseFragment implements ConfigCallback, Sit
         mBinding.wallUrl.setText(WallConfig.getDesc());
         mBinding.dohText.setText(getDohList()[getDohIndex()]);
         mBinding.versionText.setText("一骁 "+BuildConfig.VERSION_NAME);
-        mBinding.versionText.setText(BuildConfig.VERSION_NAME);
         mBinding.backupText.setText((backup = ResUtil.getStringArray(R.array.select_backup))[Setting.getBackupMode()]);
         mBinding.aboutText.setText(BuildConfig.FLAVOR_mode + "-" + BuildConfig.FLAVOR_api + "-" + BuildConfig.FLAVOR_abi);
         mBinding.proxyText.setText(UrlUtil.scheme(Setting.getProxy()));
@@ -278,11 +277,11 @@ public class SettingFragment extends BaseFragment implements ConfigCallback, Sit
     }
 
     private void onVersion(View view) {
-        Updater.get().force().release().start(getActivity());
+//        Updater.get().force().release().start(getActivity());
     }
 
     private boolean onVersionDev(View view) {
-        Updater.get().force().dev().start(getActivity());
+//        Updater.get().force().dev().start(getActivity());
         return true;
     }
 
