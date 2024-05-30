@@ -77,6 +77,7 @@ import com.permissionx.guolindev.PermissionX;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -526,6 +527,11 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     }
 
     @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mClock.start();
@@ -587,6 +593,11 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
     @Override
     public void setPassword(String password) {
+
+    }
+
+    @Override
+    public void onRestore(File file) {
 
     }
 

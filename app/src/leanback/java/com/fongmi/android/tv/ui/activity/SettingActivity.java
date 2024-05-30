@@ -262,11 +262,11 @@ public class SettingActivity extends BaseActivity implements RestoreCallback, Co
     }
 
     private void onVersion(View view) {
-        Updater.get().force().release().start(this);
+//        Updater.get().force().release().start(this);
     }
 
     private boolean onVersionDev(View view) {
-        Updater.get().force().dev().start(this);
+//        Updater.get().force().dev().start(this);
         return true;
     }
 
