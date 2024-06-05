@@ -50,7 +50,6 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
     @Override
     protected void initView() {
         mBinding.sizeText.setText((size = ResUtil.getStringArray(R.array.select_size))[Setting.getSize()]);
-        mBinding.danmuSyncText.setText(getSwitch(Setting.isDanmuSync()));
         mBinding.speedText.setText(getSpeedText());
         mBinding.incognitoText.setText(getSwitch(Setting.isIncognito()));
         mBinding.aggregatedSearchText.setText(getSwitch(Setting.isAggregatedSearch()));
@@ -68,9 +67,7 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
 
     @Override
     protected void initEvent() {
-        mBinding.title.setOnLongClickListener(this::onTitle);
         mBinding.size.setOnClickListener(this::setSize);
-        mBinding.danmuSync.setOnClickListener(this::setDanmuSync);
         mBinding.speed.setOnClickListener(this::setSpeed);
         mBinding.speed.setOnLongClickListener(this::resetSpeed);
         mBinding.incognito.setOnClickListener(this::setIncognito);
@@ -85,10 +82,6 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.homePasswordSet.setOnClickListener(this::setPassword);
     }
 
-    private boolean onTitle(View view) {
-        mBinding.danmuSync.setVisibility(View.VISIBLE);
-        return true;
-    }
 
     private void onPassword(View view){
         PasswordDialog.create(this).type(1).show();
@@ -101,11 +94,6 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
             RefreshEvent.size();
             dialog.dismiss();
         }).show();
-    }
-
-    private void setDanmuSync(View view) {
-        Setting.putDanmuSync(!Setting.isDanmuSync());
-        mBinding.danmuSyncText.setText(getSwitch(Setting.isDanmuSync()));
     }
 
     private void setPassword(View view){
