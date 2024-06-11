@@ -20,7 +20,7 @@ public class CrashActivity extends BaseActivity {
         return mBinding = ActivityCrashBinding.inflate(getLayoutInflater());
     }
 
-    @Override
+    @Override 
     protected void initEvent() {
         mBinding.details.setOnClickListener(v -> showError());
         mBinding.restart.setOnClickListener(v -> CustomActivityOnCrash.restartApplication(this, Objects.requireNonNull(CustomActivityOnCrash.getConfigFromIntent(getIntent()))));
