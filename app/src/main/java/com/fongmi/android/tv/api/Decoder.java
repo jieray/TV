@@ -33,9 +33,9 @@ public class Decoder {
     }
 
     private static String fix(String url, String data) {
-        if (url.startsWith("file") || url.startsWith("clan") || url.startsWith("assets")) url = UrlUtil.convert(url);
-        if (data.contains("../")) data = data.replace("../", url.substring(0, url.substring(0, url.split("\\?")[0].lastIndexOf("/")).lastIndexOf("/") + 1));
-        if (data.contains("./")) data = data.replace("./", url.substring(0, url.split("\\?")[0].lastIndexOf("/") + 1));
+        if (url.startsWith("file") || url.startsWith("assets")) url = UrlUtil.convert(url);
+        if (data.contains("../")) data = data.replace("../", UrlUtil.resolve(url, "../"));
+        if (data.contains("./")) data = data.replace("./", UrlUtil.resolve(url, "./"));
         return data;
     }
 
