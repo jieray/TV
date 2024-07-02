@@ -155,6 +155,11 @@
                 android:layout_height="match_parent"
                 android:fillViewport="true">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
 
 
                     <LinearLayout
@@ -337,7 +342,7 @@
                         tools:listitem="@layout/adapter_quick"
                         tools:visibility="visible" />
 
-                </LinearLayout>
+            </LinearLayout>
             </androidx.core.widget.NestedScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </com.fongmi.android.tv.ui.custom.ProgressLayout>
