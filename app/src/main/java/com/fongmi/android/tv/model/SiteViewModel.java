@@ -236,7 +236,7 @@ public class SiteViewModel extends ViewModel {
             if (site.getType() == 3) {
                 Spider spider = VodConfig.get().getSpider(site);
                 String searchContent = spider.searchContent(Trans.t2s(keyword), false, page);
-                SpiderDebug.log(site.getName() + "," + searchContent);
+                SpiderDebug.log(site.getName() + "," + searchContent+"--page---"+page);
                 Result result = Result.fromJson(searchContent);
                 for (Vod vod : result.getList()) vod.setSite(site);
                 return result;

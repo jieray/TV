@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
@@ -297,6 +298,7 @@ public class CollectActivity extends BaseActivity implements CustomScroller.Call
     public void onLoadMore(String page) {
         Collect activated = mCollectAdapter.getActivated();
         if ("all".equals(activated.getSite().getKey())) return;
+        Log.e("jieray","onLoadMore---------"+activated.getSite()+"---page----"+page);
         mViewModel.searchContent(activated.getSite(), mBinding.keyword.getText().toString(), page);
         activated.setPage(Integer.parseInt(page));
         mScroller.setLoading(true);
