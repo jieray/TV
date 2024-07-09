@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -490,6 +491,12 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
             Notify.progress(this);
             Downloader.get().title(mBinding.name.getText() + "-" + episode.getName());
             mViewModel.download(getKey(), getFlag().getFlag(), episode.getUrl());
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Notify.dismiss();
+                }
+            },2000);
         });
     }
 

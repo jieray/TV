@@ -2,6 +2,7 @@ package com.fongmi.android.tv.model;
 
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.collection.ArrayMap;
 import androidx.lifecycle.MutableLiveData;
@@ -162,6 +163,7 @@ public class SiteViewModel extends ViewModel {
             Source.get().stop();
             Site site = VodConfig.get().getSite(key);
             if (site.getType() == 3) {
+                Log.e("jieray","executePlayer---------------3");
                 Spider spider = VodConfig.get().getSpider(site);
                 String playerContent = spider.playerContent(flag, id, VodConfig.get().getFlags());
                 SpiderDebug.log(playerContent);
@@ -173,6 +175,7 @@ public class SiteViewModel extends ViewModel {
                 result.setKey(key);
                 return result;
             } else if (site.getType() == 4) {
+                Log.e("jieray","executePlayer---------------4");
                 ArrayMap<String, String> params = new ArrayMap<>();
                 params.put("play", id);
                 params.put("flag", flag);
@@ -184,6 +187,7 @@ public class SiteViewModel extends ViewModel {
                 result.setHeader(site.getHeader());
                 return result;
             } else if (site.isEmpty() && "push_agent".equals(key)) {
+                Log.e("jieray","executePlayer---------------5");
                 Result result = new Result();
                 result.setParse(0);
                 result.setFlag(flag);
@@ -191,6 +195,7 @@ public class SiteViewModel extends ViewModel {
                 result.setUrl(Source.get().fetch(result));
                 return result;
             } else {
+                Log.e("jieray","executePlayer---------------");
                 Url url = Url.create().add(id);
                 String type = Uri.parse(id).getQueryParameter("type");
                 if ("json".equals(type)) url = Result.fromJson(OkHttp.newCall(id, site.getHeaders()).execute().body().string()).getUrl();
@@ -321,6 +326,7 @@ public class SiteViewModel extends ViewModel {
         executor.execute(() -> {
             try {
                 if (Thread.interrupted()) return;
+                Log.e("jieray","executePlayer---------------6");
                 result.postValue(executor.submit(callable).get(Constant.TIMEOUT_VOD, TimeUnit.MILLISECONDS));
             } catch (Throwable e) {
                 if (e instanceof InterruptedException || Thread.interrupted()) return;
