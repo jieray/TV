@@ -54,6 +54,7 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.incognitoText.setText(getSwitch(Setting.isIncognito()));
         mBinding.aggregatedSearchText.setText(getSwitch(Setting.isAggregatedSearch()));
         mBinding.homeDisplayNameText.setText(getSwitch(Setting.isHomeDisplayName()));
+        mBinding.siteSearchText.setText(getSwitch(Setting.isSiteSearch()));
         mBinding.removeAdText.setText(getSwitch(Setting.isRemoveAd()));
         mBinding.languageText.setText((lang = ResUtil.getStringArray(R.array.select_language))[Setting.getLanguage()]);
         mBinding.configCacheText.setText((configCache = ResUtil.getStringArray(R.array.select_config_cache))[Setting.getConfigCache()]);
@@ -73,6 +74,7 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         mBinding.incognito.setOnClickListener(this::setIncognito);
         mBinding.aggregatedSearch.setOnClickListener(this::setAggregatedSearch);
         mBinding.homeDisplayName.setOnClickListener(this::setHomeDisplayName);
+        mBinding.siteSearch.setOnClickListener(this::setSiteSearch);
         mBinding.removeAd.setOnClickListener(this::setRemoveAd);
         mBinding.language.setOnClickListener(this::setLanguage);
         mBinding.configCache.setOnClickListener(this::setConfigCache);
@@ -135,6 +137,11 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
         RefreshEvent.config();
     }
 
+    private void setSiteSearch(View view) {
+        Setting.putSiteSearch(!Setting.isSiteSearch());
+        mBinding.siteSearchText.setText(getSwitch(Setting.isSiteSearch()));
+    }
+
     private void setRemoveAd(View view) {
         Setting.putRemoveAd(!Setting.isRemoveAd());
         mBinding.removeAdText.setText(getSwitch(Setting.isRemoveAd()));
@@ -146,7 +153,7 @@ public class SettingCustomFragment extends BaseFragment implements PasswordCallb
             Setting.putLanguage(which);
             LanguageUtil.setLocale(LanguageUtil.getLocale(Setting.getLanguage()));
             dialog.dismiss();
-            Util.restartApp(getActivity());
+            App.post(() -> Util.restartApp(getActivity()), 1000);
         }).show();
     }
 
