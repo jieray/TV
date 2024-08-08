@@ -157,7 +157,6 @@ public class SiteViewModel extends ViewModel {
             Site site = VodConfig.get().getSite(key);
             if (site.getType() == 3) {
                 Log.e("jieray","executePlayer---------------3");
-                Spider spider = VodConfig.get().getSpider(site);
                 Spider spider = site.recent().spider();
                 String playerContent = spider.playerContent(flag, id, VodConfig.get().getFlags());
                 SpiderDebug.log(playerContent);
