@@ -48,7 +48,6 @@ import com.fongmi.android.tv.event.ServerEvent;
 import com.fongmi.android.tv.impl.Callback;
 import com.fongmi.android.tv.impl.ConfigCallback;
 import com.fongmi.android.tv.impl.PasswordCallback;
-import com.fongmi.android.tv.impl.RestoreCallback;
 import com.fongmi.android.tv.model.SiteViewModel;
 import com.fongmi.android.tv.player.Source;
 import com.fongmi.android.tv.server.Server;
@@ -56,7 +55,6 @@ import com.fongmi.android.tv.ui.base.BaseActivity;
 import com.fongmi.android.tv.ui.custom.CustomTitleView;
 import com.fongmi.android.tv.ui.dialog.HistoryDialog;
 import com.fongmi.android.tv.ui.dialog.MenuDialog;
-import com.fongmi.android.tv.ui.dialog.RestoreDialog;
 import com.fongmi.android.tv.ui.dialog.PasswordDialog;
 import com.fongmi.android.tv.ui.dialog.SiteDialog;
 import com.fongmi.android.tv.ui.fragment.HomeFragment;
@@ -82,7 +80,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HomeActivity extends BaseActivity implements CustomTitleView.Listener, TypePresenter.OnClickListener, ConfigCallback, PasswordCallback , RestoreCallback{
+public class HomeActivity extends BaseActivity implements CustomTitleView.Listener, TypePresenter.OnClickListener, ConfigCallback, PasswordCallback {
 
     public ActivityHomeBinding mBinding;
     private ArrayObjectAdapter mAdapter;
@@ -601,10 +599,6 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
     }
 
-    @Override
-    public void onRestore(File file) {
-
-    }
 
     class PageAdapter extends FragmentStatePagerAdapter {
         public PageAdapter(@NonNull FragmentManager fm) {
