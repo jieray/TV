@@ -17,7 +17,7 @@ android {
     flavorDimensions = ["mode", "api", "abi"]
 
     defaultConfig {
-        applicationId "com.hemu.android.tv"
+        applicationId "com.yxiao.android.tv"
         minSdk 21
         //noinspection ExpiredTargetSdkVersion
         targetSdk 28
