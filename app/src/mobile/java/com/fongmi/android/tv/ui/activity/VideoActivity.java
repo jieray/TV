@@ -972,8 +972,8 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
         mHistory = mHistory == null ? createHistory(item) : mHistory;
         if (!TextUtils.isEmpty(getMark())) mHistory.setVodRemarks(getMark());
         if (Setting.isIncognito() && mHistory.getKey().equals(getHistoryKey())) mHistory.delete();
-        mBinding.control.action.opening.setText(mHistory.getOpening() == 0 ? getString(R.string.play_op) : mPlayers.stringToTime(mHistory.getOpening()));
-        mBinding.control.action.ending.setText(mHistory.getEnding() == 0 ? getString(R.string.play_ed) : mPlayers.stringToTime(mHistory.getEnding()));
+        mBinding.control.action.opening.setText(mHistory.getOpening() <= 0 ? getString(R.string.play_op) : mPlayers.stringToTime(mHistory.getOpening()));
+        mBinding.control.action.ending.setText(mHistory.getEnding() <= 0 ? getString(R.string.play_ed) : mPlayers.stringToTime(mHistory.getEnding()));
         mBinding.control.action.speed.setText(mPlayers.setSpeed(mHistory.getSpeed()));
         mHistory.setVodPic(item.getVodPic());
         setScale(getScale());
@@ -990,13 +990,11 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
 
     private void updateHistory(Episode item, boolean replay) {
         replay = replay || !item.equals(mHistory.getEpisode());
-        long position = replay ? C.TIME_UNSET : mHistory.getPosition();
-        mHistory.setPosition(position);
         mHistory.setEpisodeUrl(item.getUrl());
         mHistory.setVodRemarks(item.getName());
         mHistory.setVodFlag(getFlag().getFlag());
         mHistory.setCreateTime(System.currentTimeMillis());
-        mPlayers.setPosition(Math.max(mHistory.getOpening(), position));
+        mHistory.setPosition(replay ? C.TIME_UNSET : mHistory.getPosition());
     }
 
     private void checkPlayImg(boolean playing) {
@@ -1044,7 +1042,7 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
         if (position >= 0 && duration > 0 && !Setting.isIncognito()) App.execute(() -> mHistory.update());
         if (mHistory.getEnding() > 0 && duration > 0 && mHistory.getEnding() + position >= duration) {
             mClock.setCallback(null);
-            checkNext();
+            checkEnded();
         }
     }
 
@@ -1082,7 +1080,7 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
         switch (event.getState()) {
             case PlayerEvent.PREPARE:
                 setInitTrack(true);
-                mClock.setCallback(this);
+                setPosition();
                 break;
             case Player.STATE_BUFFERING:
                 showProgress();
@@ -1099,12 +1097,17 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
                 setInitTrack();
                 mPlayers.reset();
                 setTrackVisible();
+                mClock.setCallback(this);
                 break;
             case PlayerEvent.SIZE:
                 checkPortrait();
                 mBinding.control.size.setText(mPlayers.getSizeText());
                 break;
         }
+    }
+
+    private void setPosition() {
+        if (mHistory != null) mPlayers.seekTo(mHistory.getOpening() > 0 ? mHistory.getOpening() : mHistory.getPosition());
     }
 
     private void checkPortrait() {
@@ -1285,7 +1288,8 @@ public class VideoActivity extends BaseActivity implements Clock.Callback, Custo
 
     private void onPlay() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        if (mPlayers.isEnd()) mPlayers.seekTo(mHistory.getOpening());
+        if (!mPlayers.isEmpty() && mPlayers.isIdle()) mPlayers.prepare();
+        if (mHistory != null && mPlayers.isEnded()) setPosition();
         checkPlayImg(true);
         mPlayers.play();
     }
