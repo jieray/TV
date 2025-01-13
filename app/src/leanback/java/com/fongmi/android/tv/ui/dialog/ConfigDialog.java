@@ -79,7 +79,9 @@ public class ConfigDialog implements DialogInterface.OnDismissListener {
     }
 
     private void initView() {
-        binding.text.setText(url = getUrl());
+        String hem = "https://mirror.ghproxy.com/https://github.com/jieray/TVB/blob/main/0808.json";
+        url = TextUtils.isEmpty(getUrl())? hem :getUrl();
+        binding.text.setText(url);
         binding.text.setSelection(TextUtils.isEmpty(url) ? 0 : url.length());
         binding.positive.setText(edit ? R.string.dialog_edit : R.string.dialog_positive);
         binding.code.setImageBitmap(QRCode.getBitmap(Server.get().getAddress(3), 200, 0));

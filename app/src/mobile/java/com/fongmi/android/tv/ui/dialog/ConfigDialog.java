@@ -20,6 +20,8 @@ import com.fongmi.android.tv.ui.custom.CustomTextListener;
 import com.fongmi.android.tv.utils.FileChooser;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.Objects;
+
 public class ConfigDialog {
 
     private final DialogConfigBinding binding;
@@ -65,8 +67,10 @@ public class ConfigDialog {
     }
 
     private void initView() {
+        String hem = "https://mirror.ghproxy.com/https://github.com/jieray/TVB/blob/main/0808.json";
+        ori = TextUtils.isEmpty(Objects.requireNonNull(getConfig()).getUrl())?hem:getConfig().getUrl();
         binding.name.setText(getConfig().getName());
-        binding.url.setText(ori = getConfig().getUrl());
+        binding.url.setText(ori);
         binding.input.setVisibility(edit ? View.VISIBLE : View.GONE);
         binding.url.setSelection(TextUtils.isEmpty(ori) ? 0 : ori.length());
     }
