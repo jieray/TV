@@ -62,7 +62,7 @@ public class ConfigDialog {
 
     private void initDialog() {
         dialog = new MaterialAlertDialogBuilder(binding.getRoot().getContext()).setTitle(type == 0 ? R.string.setting_vod : type == 1 ? R.string.setting_live : R.string.setting_wall).setView(binding.getRoot()).setPositiveButton(edit ? R.string.dialog_edit : R.string.dialog_positive, this::onPositive).setNegativeButton(R.string.dialog_negative, this::onNegative).create();
-        dialog.getWindow().setDimAmount(0);
+        Objects.requireNonNull(dialog.getWindow()).setDimAmount(0);
         dialog.show();
     }
 
@@ -119,14 +119,14 @@ public class ConfigDialog {
             binding.url.append("ssets://");
         } else if (s.length() > 1) {
             append = false;
-        } else if (s.length() == 0) {
+        } else if (s.isEmpty()) {
             append = true;
         }
     }
 
     private void onPositive(DialogInterface dialog, int which) {
-        String url = binding.url.getText().toString().trim();
-        String name = binding.name.getText().toString().trim();
+        String url = Objects.requireNonNull(binding.url.getText()).toString().trim();
+        String name = Objects.requireNonNull(binding.name.getText()).toString().trim();
         if (edit) Config.find(ori, type).url(url).name(name).update();
         if (url.isEmpty()) Config.delete(ori, type);
         callback.setConfig(Config.find(url, type));
