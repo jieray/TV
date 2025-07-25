@@ -4,16 +4,15 @@ import android.content.Context;
 
 import com.github.catvod.Init;
 
-public class TVCore {
+public class TVCore implements Runnable {
 
-    private long handle;
+    private final Thread thread;
+    private final long handle;
 
-    public TVCore(String so) {
-        try {
-            System.load(so);
-            handle = initialise();
-        } catch (Throwable ignored) {
-        }
+    public TVCore(String path) {
+        System.load(path);
+        handle = initialise();
+        thread = new Thread(this);
     }
 
     public TVCore listener(Listener listener) {
@@ -54,7 +53,7 @@ public class TVCore {
 
     public TVCore auth(String str) {
         try {
-            if (str.length() > 0) setAuthUrl(handle, str);
+            if (!str.isEmpty()) setAuthUrl(handle, str);
             return this;
         } catch (Throwable ignored) {
             return this;
@@ -63,7 +62,7 @@ public class TVCore {
 
     public TVCore domain(String str) {
         try {
-            if (str.length() > 0) setDomainSuffix(handle, str);
+            if (!str.isEmpty()) setDomainSuffix(handle, str);
             return this;
         } catch (Throwable ignored) {
             return this;
@@ -72,7 +71,7 @@ public class TVCore {
 
     public TVCore broker(String str) {
         try {
-            if (str.length() > 0) setMKBroker(handle, str);
+            if (!str.isEmpty()) setMKBroker(handle, str);
             return this;
         } catch (Throwable ignored) {
             return this;
@@ -81,7 +80,7 @@ public class TVCore {
 
     public TVCore name(String str) {
         try {
-            if (str.length() > 0) setUsername(handle, str);
+            if (!str.isEmpty()) setUsername(handle, str);
             return this;
         } catch (Throwable ignored) {
             return this;
@@ -90,23 +89,16 @@ public class TVCore {
 
     public TVCore pass(String str) {
         try {
-            if (str.length() > 0) setPassword(handle, str);
+            if (!str.isEmpty()) setPassword(handle, str);
             return this;
         } catch (Throwable ignored) {
             return this;
         }
     }
 
-    public void init() {
-        new Thread(this::start).start();
-    }
-
-    private void start() {
-        try {
-            init(handle, Init.context());
-            run(handle);
-        } catch (Throwable ignored) {
-        }
+    public TVCore init() {
+        thread.start();
+        return this;
     }
 
     public void start(String url) {
@@ -126,6 +118,16 @@ public class TVCore {
     public void quit() {
         try {
             quit(handle);
+            thread.interrupt();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            init(handle, Init.context());
+            run(handle);
         } catch (Throwable ignored) {
         }
     }

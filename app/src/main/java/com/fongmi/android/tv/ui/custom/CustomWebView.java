@@ -26,11 +26,13 @@ import com.fongmi.android.tv.ui.dialog.WebDialog;
 import com.fongmi.android.tv.utils.Sniffer;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.net.OkCookieJar;
+import com.github.catvod.utils.Util;
 import com.google.common.net.HttpHeaders;
 import com.orhanobut.logger.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -44,6 +46,7 @@ public class CustomWebView extends WebView implements DialogInterface.OnDismissL
 
     private WebResourceResponse empty;
     private ParseCallback callback;
+    private HashSet<String> urls;
     private WebDialog dialog;
     private Runnable timer;
     private boolean detect;
@@ -63,6 +66,7 @@ public class CustomWebView extends WebView implements DialogInterface.OnDismissL
 
     @SuppressLint("SetJavaScriptEnabled")
     public void initSettings() {
+        this.urls = new HashSet<>();
         this.timer = () -> stop(true);
         this.empty = new WebResourceResponse("text/plain", "utf-8", new ByteArrayInputStream("".getBytes()));
         getSettings().setSupportZoom(true);
@@ -114,7 +118,7 @@ public class CustomWebView extends WebView implements DialogInterface.OnDismissL
                 if (TextUtils.isEmpty(host) || isAd(host)) return empty;
                 Map<String, String> headers = request.getRequestHeaders();
                 if (url.contains("challenges.cloudflare.com/turnstile")) App.post(() -> showDialog());
-                if (detect && PLAYER.matcher(url).find()) onParseAdd(headers, url);
+                if (detect && PLAYER.matcher(url).find() && urls.add(url)) onParseAdd(headers, url);
                 else if (isVideoFormat(url)) onParseSuccess(headers, url);
                 return super.shouldInterceptRequest(view, request);
             }
@@ -173,10 +177,8 @@ public class CustomWebView extends WebView implements DialogInterface.OnDismissL
     }
 
     private boolean isAd(String host) {
-        for (String ad : VodConfig.get().getAds()) if (host.contains(ad)) return true;
-        for (String ad : LiveConfig.get().getAds()) if (host.contains(ad)) return true;
-        for (String ad : VodConfig.get().getAds()) if (Pattern.compile(ad).matcher(host).find()) return true;
-        for (String ad : LiveConfig.get().getAds()) if (Pattern.compile(ad).matcher(host).find()) return true;
+        for (String ad : VodConfig.get().getAds()) if (Util.containOrMatch(host, ad)) return true;
+        for (String ad : LiveConfig.get().getAds()) if (Util.containOrMatch(host, ad)) return true;
         return false;
     }
 

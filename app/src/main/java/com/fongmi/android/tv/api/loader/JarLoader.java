@@ -3,7 +3,6 @@ package com.fongmi.android.tv.api.loader;
 import android.content.Context;
 
 import com.fongmi.android.tv.App;
-import com.fongmi.android.tv.api.Decoder;
 import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderNull;
@@ -79,7 +78,7 @@ public class JarLoader {
 
     private File download(String url) {
         try {
-            return Path.write(Path.jar(url), OkHttp.newCall(url).execute().body().bytes());
+            return Path.write(Path.jar(url), OkHttp.bytes(url));
         } catch (Exception e) {
             return Path.jar(url);
         }
@@ -93,14 +92,23 @@ public class JarLoader {
         jar = texts[0];
         if (!md5.isEmpty() && Util.equals(jar, md5)) {
             load(key, Path.jar(jar));
-        } else if (jar.startsWith("img+")) {
-            load(key, Decoder.getSpider(jar));
         } else if (jar.startsWith("http")) {
             load(key, download(jar));
         } else if (jar.startsWith("file")) {
             load(key, Path.local(jar));
         } else if (jar.startsWith("assets")) {
             parseJar(key, UrlUtil.convert(jar));
+        }
+    }
+
+    public DexClassLoader dex(String jar) {
+        try {
+            String jaKey = Util.md5(jar);
+            if (!loaders.containsKey(jaKey)) parseJar(jaKey, jar);
+            return loaders.get(jaKey);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -133,9 +141,21 @@ public class JarLoader {
     }
 
     public Object[] proxyInvoke(Map<String, String> params) {
+        Object[] result = proxyInvoke(methods.get(recent), params);
+        return result != null ? result : tryOthers(params);
+    }
+
+    private Object[] tryOthers(Map<String, String> params) {
+        for (Map.Entry<String, Method> entry : methods.entrySet()) {
+            if (entry.getKey().equals(recent)) continue;
+            Object[] result = proxyInvoke(entry.getValue(), params);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    private Object[] proxyInvoke(Method method, Map<String, String> params) {
         try {
-            Method method = methods.get(Util.md5(recent));
-            if (method == null) return null;
             return (Object[]) method.invoke(null, params);
         } catch (Throwable e) {
             e.printStackTrace();

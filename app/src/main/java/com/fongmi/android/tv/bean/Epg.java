@@ -3,7 +3,9 @@ package com.fongmi.android.tv.bean;
 import android.text.TextUtils;
 
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.api.EpgParser;
 import com.fongmi.android.tv.utils.Util;
+import com.github.catvod.utils.Json;
 import com.github.catvod.utils.Trans;
 import com.google.gson.annotations.SerializedName;
 
@@ -24,15 +26,12 @@ public class Epg {
 
     private int width;
 
-    public static Epg objectFrom(String str, String key, SimpleDateFormat format) {
-        try {
-            Epg item = App.gson().fromJson(str, Epg.class);
-            item.setTime(format);
-            item.setKey(key);
-            return item;
-        } catch (Exception e) {
-            return new Epg();
-        }
+    public static Epg objectFrom(String str, String key, List<SimpleDateFormat> formats) throws Exception {
+        if (!Json.isObj(str)) return EpgParser.getEpg(str, key);
+        Epg item = App.gson().fromJson(str, Epg.class);
+        item.setTime(formats);
+        item.setKey(key);
+        return item;
     }
 
     public static Epg create(String key, String date) {
@@ -79,18 +78,19 @@ public class Epg {
         return getDate().equals(date);
     }
 
-    private void setTime(SimpleDateFormat format) {
+    private void setTime(List<SimpleDateFormat> formats) {
         setList(new ArrayList<>(new LinkedHashSet<>(getList())));
         for (EpgData item : getList()) {
-            item.setStartTime(Util.format(format, getDate().concat(item.getStart())));
-            item.setEndTime(Util.format(format, getDate().concat(item.getEnd())));
+            item.setStartTime(Util.format(getDate().concat(item.getStart()), formats));
+            item.setEndTime(Util.format(getDate().concat(item.getEnd()), formats));
+            if (item.getEndTime() < item.getStartTime()) item.checkDay();
             item.setTitle(Trans.s2t(item.getTitle()));
         }
     }
 
-    public String getEpg() {
-        for (EpgData item : getList()) if (item.isSelected()) return item.format();
-        return "";
+    public EpgData getEpgData() {
+        for (EpgData item : getList()) if (item.isSelected()) return item;
+        return new EpgData();
     }
 
     public Epg selected() {

@@ -17,7 +17,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_toStartOf="@+id/clock"
-            android:letterSpacing="0.02"
+            android:ellipsize="marquee"
             android:shadowColor="@color/grey_900"
             android:shadowDx="2"
             android:shadowDy="2"
@@ -170,5 +170,15 @@
         android:layout_marginTop="24dp"
         android:src="@drawable/ic_widget_forward"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/waiting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="24dp"
+        android:text="@string/cast_waiting"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
 
 </FrameLayout>

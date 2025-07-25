@@ -6,6 +6,8 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 
+import com.google.common.net.HttpHeaders;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
+import okhttp3.Request;
 
 public class OkCookieJar implements CookieJar {
 
@@ -40,10 +43,15 @@ public class OkCookieJar implements CookieJar {
         }
     }
 
+    public static void sync(HttpUrl url, Request request) {
+        if (!"127.0.0.1".equals(url.host())) sync(url.toString(), request.header(HttpHeaders.COOKIE));
+    }
+
     public static void sync(String url, String cookie) {
         try {
             if (TextUtils.isEmpty(cookie)) return;
             for (String split : cookie.split(";")) get().manager.setCookie(url, split);
+            get().manager.flush();
         } catch (Throwable ignored) {
         }
     }
@@ -72,6 +80,7 @@ public class OkCookieJar implements CookieJar {
         try {
             if ("127.0.0.1".equals(url.host())) return;
             for (Cookie cookie : cookies) manager.setCookie(url.toString(), cookie.toString());
+            manager.flush();
         } catch (Throwable ignored) {
         }
     }

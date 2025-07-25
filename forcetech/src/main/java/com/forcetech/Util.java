@@ -7,12 +7,6 @@ import android.net.Uri;
 
 import com.forcetech.service.P2PService;
 import com.forcetech.service.P3PService;
-import com.forcetech.service.P4PService;
-import com.forcetech.service.P5PService;
-import com.forcetech.service.P6PService;
-import com.forcetech.service.P7PService;
-import com.forcetech.service.P8PService;
-import com.forcetech.service.P9PService;
 import com.gsoft.mitv.MainActivity;
 
 public class Util {
@@ -20,12 +14,6 @@ public class Util {
     public static int MTV = 9002;
     public static int P2P = 9906;
     public static int P3P = 9907;
-    public static int P4P = 9908;
-    public static int P5P = 9909;
-    public static int P6P = 9910;
-    public static int P7P = 9911;
-    public static int P8P = 9912;
-    public static int P9P = 9913;
 
     public static String scheme(String url) {
         String scheme = Uri.parse(url).getScheme();
@@ -53,18 +41,6 @@ public class Util {
                 return P2PService.class;
             case "p3p":
                 return P3PService.class;
-            case "p4p":
-                return P4PService.class;
-            case "p5p":
-                return P5PService.class;
-            case "p6p":
-                return P6PService.class;
-            case "p7p":
-                return P7PService.class;
-            case "p8p":
-                return P8PService.class;
-            case "p9p":
-                return P9PService.class;
             default:
                 return MainActivity.class;
         }
@@ -76,18 +52,6 @@ public class Util {
                 return P2P;
             case "p3p":
                 return P3P;
-            case "p4p":
-                return P4P;
-            case "p5p":
-                return P5P;
-            case "p6p":
-                return P6P;
-            case "p7p":
-                return P7P;
-            case "p8p":
-                return P8P;
-            case "p9p":
-                return P9P;
             default:
                 return MTV;
         }

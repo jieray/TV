@@ -28,7 +28,6 @@ public class SettingPlayerActivity extends BaseActivity implements UaCallback, B
     private String[] caption;
     private String[] render;
     private String[] scale;
-    private String[] rtsp;
 
     public static void start(Activity activity) {
         activity.startActivity(new Intent(activity, SettingPlayerActivity.class));
@@ -49,10 +48,14 @@ public class SettingPlayerActivity extends BaseActivity implements UaCallback, B
         format = new DecimalFormat("0.#");
         mBinding.render.requestFocus();
         mBinding.uaText.setText(Setting.getUa());
+        mBinding.aacText.setText(getSwitch(Setting.isPreferAAC()));
         mBinding.tunnelText.setText(getSwitch(Setting.isTunnel()));
         mBinding.speedText.setText(format.format(Setting.getSpeed()));
         mBinding.bufferText.setText(String.valueOf(Setting.getBuffer()));
-        mBinding.rtspText.setText((rtsp = ResUtil.getStringArray(R.array.select_rtsp))[Setting.getRtsp()]);
+        mBinding.backgroundText.setText(getSwitch(Setting.isBackgroundOn()));
+        mBinding.audioDecodeText.setText(getSwitch(Setting.isAudioPrefer()));
+        mBinding.videoDecodeText.setText(getSwitch(Setting.isVideoPrefer()));
+        mBinding.danmakuLoadText.setText(getSwitch(Setting.isDanmakuLoad()));
         mBinding.scaleText.setText((scale = ResUtil.getStringArray(R.array.select_scale))[Setting.getScale()]);
         mBinding.renderText.setText((render = ResUtil.getStringArray(R.array.select_render))[Setting.getRender()]);
         mBinding.captionText.setText((caption = ResUtil.getStringArray(R.array.select_caption))[Setting.isCaption() ? 1 : 0]);
@@ -61,7 +64,7 @@ public class SettingPlayerActivity extends BaseActivity implements UaCallback, B
     @Override
     protected void initEvent() {
         mBinding.ua.setOnClickListener(this::onUa);
-        mBinding.rtsp.setOnClickListener(this::setRtsp);
+        mBinding.aac.setOnClickListener(this::setAAC);
         mBinding.scale.setOnClickListener(this::setScale);
         mBinding.speed.setOnClickListener(this::onSpeed);
         mBinding.buffer.setOnClickListener(this::onBuffer);
@@ -69,9 +72,14 @@ public class SettingPlayerActivity extends BaseActivity implements UaCallback, B
         mBinding.tunnel.setOnClickListener(this::setTunnel);
         mBinding.caption.setOnClickListener(this::setCaption);
         mBinding.caption.setOnLongClickListener(this::onCaption);
+        mBinding.background.setOnClickListener(this::onBackground);
+        mBinding.audioDecode.setOnClickListener(this::setAudioDecode);
+        mBinding.videoDecode.setOnClickListener(this::setVideoDecode);
+        mBinding.danmakuLoad.setOnClickListener(this::setDanmakuLoad);
     }
 
     private void setVisible() {
+        if (Setting.getBackground() == 2) Setting.putBackground(1);
         mBinding.caption.setVisibility(Setting.hasCaption() ? View.VISIBLE : View.GONE);
     }
 
@@ -85,10 +93,9 @@ public class SettingPlayerActivity extends BaseActivity implements UaCallback, B
         Setting.putUa(ua);
     }
 
-    private void setRtsp(View view) {
-        int index = Setting.getRtsp();
-        Setting.putRtsp(index = index == rtsp.length - 1 ? 0 : ++index);
-        mBinding.rtspText.setText(rtsp[index]);
+    private void setAAC(View view) {
+        Setting.putPreferAAC(!Setting.isPreferAAC());
+        mBinding.aacText.setText(getSwitch(Setting.isPreferAAC()));
     }
 
     private void setScale(View view) {
@@ -138,5 +145,25 @@ public class SettingPlayerActivity extends BaseActivity implements UaCallback, B
     private boolean onCaption(View view) {
         if (Setting.isCaption()) startActivity(new Intent(Settings.ACTION_CAPTIONING_SETTINGS));
         return Setting.isCaption();
+    }
+
+    private void setAudioDecode(View view) {
+        Setting.putAudioPrefer(!Setting.isAudioPrefer());
+        mBinding.audioDecodeText.setText(getSwitch(Setting.isAudioPrefer()));
+    }
+
+    private void setVideoDecode(View view) {
+        Setting.putVideoPrefer(!Setting.isVideoPrefer());
+        mBinding.videoDecodeText.setText(getSwitch(Setting.isVideoPrefer()));
+    }
+
+    private void setDanmakuLoad(View view) {
+        Setting.putDanmakuLoad(!Setting.isDanmakuLoad());
+        mBinding.danmakuLoadText.setText(getSwitch(Setting.isDanmakuLoad()));
+    }
+
+    private void onBackground(View view) {
+        Setting.putBackground(Setting.isBackgroundOn() ? 0 : 1);
+        mBinding.backgroundText.setText(getSwitch(Setting.isBackgroundOn()));
     }
 }

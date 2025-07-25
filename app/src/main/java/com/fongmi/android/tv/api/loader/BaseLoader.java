@@ -1,5 +1,7 @@
 package com.fongmi.android.tv.api.loader;
 
+import android.text.TextUtils;
+
 import com.fongmi.android.tv.api.config.LiveConfig;
 import com.fongmi.android.tv.api.config.VodConfig;
 import com.fongmi.android.tv.bean.Live;
@@ -13,6 +15,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import dalvik.system.DexClassLoader;
 
 public class BaseLoader {
 
@@ -45,7 +49,7 @@ public class BaseLoader {
         boolean py = api.contains(".py");
         boolean csp = api.startsWith("csp_");
         if (py) return pyLoader.getSpider(key, api, ext);
-        else if (js) return jsLoader.getSpider(key, api, ext);
+        else if (js) return jsLoader.getSpider(key, api, ext, jar);
         else if (csp) return jarLoader.getSpider(key, api, ext, jar);
         else return new SpiderNull();
     }
@@ -65,7 +69,7 @@ public class BaseLoader {
         boolean csp = api.startsWith("csp_");
         if (js) jsLoader.setRecent(key);
         else if (py) pyLoader.setRecent(key);
-        else if (csp) jarLoader.setRecent(jar);
+        else if (csp) jarLoader.setRecent(Util.md5(jar));
     }
 
     public Object[] proxyLocal(Map<String, String> params) {
@@ -78,8 +82,14 @@ public class BaseLoader {
         }
     }
 
-    public void parseJar(String jar) {
+    public void parseJar(String jar, boolean recent) {
+        if (TextUtils.isEmpty(jar)) return;
         jarLoader.parseJar(Util.md5(jar), jar);
+        if (recent) jarLoader.setRecent(Util.md5(jar));
+    }
+
+    public DexClassLoader dex(String jar) {
+        return jarLoader.dex(jar);
     }
 
     public JSONObject jsonExt(String key, LinkedHashMap<String, String> jxs, String url) throws Throwable {

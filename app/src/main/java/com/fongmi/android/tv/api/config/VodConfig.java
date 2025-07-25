@@ -111,7 +111,8 @@ public class VodConfig {
 
     private void loadConfig(Callback callback) {
         try {
-            checkJson(Json.parse(Decoder.getJson(config.getUrl())).getAsJsonObject(), callback);
+            OkHttp.cancel("vod");
+            checkJson(Json.parse(Decoder.getJson(UrlUtil.convert(config.getUrl()), "vod")).getAsJsonObject(), callback);
         } catch (Throwable e) {
             if (TextUtils.isEmpty(config.getUrl())) App.post(() -> callback.error(""));
             else loadCache(callback, e);
@@ -125,7 +126,7 @@ public class VodConfig {
     }
 
     private void checkJson(JsonObject object, Callback callback) {
-        if (object.has("msg") && callback != null) {
+        if (object.has("msg")) {
             App.post(() -> callback.error(object.get("msg").getAsString()));
         } else if (object.has("urls")) {
             parseDepot(object, callback);
@@ -148,7 +149,6 @@ public class VodConfig {
             initSite(object);
             initParse(object);
             initOther(object);
-            BaseLoader.get().parseJar(Json.safeString(object, "spider"));
             if (loadLive && object.has("lives")) initLive(object);
             String notice = Json.safeString(object, "notice");
             config.logo(Json.safeString(object, "logo"));
@@ -167,11 +167,12 @@ public class VodConfig {
             return;
         }
         String spider = Json.safeString(object, "spider");
+        BaseLoader.get().parseJar(spider, true);
         for (JsonElement element : Json.safeListElement(object, "sites")) {
             Site site = Site.objectFrom(element);
             if (sites.contains(site)) continue;
-            site.setApi(parseApi(site.getApi()));
-            site.setExt(parseExt(site.getExt()));
+            site.setApi(UrlUtil.convert(site.getApi()));
+            site.setExt(UrlUtil.convert(site.getExt()));
             site.setJar(parseJar(site, spider));
             sites.add(site.trans().sync());
         }
@@ -202,25 +203,16 @@ public class VodConfig {
         if (parse == null) setParse(parses.isEmpty() ? new Parse() : parses.get(0));
         setRules(Rule.arrayFrom(object.getAsJsonArray("rules")));
         setDoh(Doh.arrayFrom(object.getAsJsonArray("doh")));
+        setHeaders(Json.safeListElement(object, "headers"));
         setFlags(Json.safeListString(object, "flags"));
+        setHosts(Json.safeListString(object, "hosts"));
+        setProxy(Json.safeListString(object, "proxy"));
         setWall(Json.safeString(object, "wallpaper"));
         setAds(Json.safeListString(object, "ads"));
     }
 
-    private String parseApi(String api) {
-        if (api.startsWith("file") || api.startsWith("assets")) return UrlUtil.convert(api);
-        return api;
-    }
-
-    private String parseExt(String ext) {
-        if (ext.startsWith("file") || ext.startsWith("assets")) return UrlUtil.convert(ext);
-        if (ext.startsWith("img+")) return Decoder.getExt(ext);
-        return ext;
-    }
-
     private String parseJar(Site site, String spider) {
-        if (site.getJar().isEmpty() && site.getApi().startsWith("csp_")) return spider;
-        return site.getJar();
+        return site.getJar().isEmpty() ? spider : site.getJar();
     }
 
     public List<Doh> getDoh() {
@@ -240,8 +232,6 @@ public class VodConfig {
     }
 
     public void setRules(List<Rule> rules) {
-        for (Rule rule : rules) if ("proxy".equals(rule.getName())) OkHttp.selector().addAll(rule.getHosts());
-        rules.remove(Rule.create("proxy"));
         this.rules = rules;
     }
 
@@ -266,12 +256,24 @@ public class VodConfig {
         return items;
     }
 
+    public void setHeaders(List<JsonElement> items) {
+        OkHttp.responseInterceptor().setHeaders(items);
+    }
+
     public List<String> getFlags() {
         return flags == null ? Collections.emptyList() : flags;
     }
 
     private void setFlags(List<String> flags) {
         this.flags.addAll(flags);
+    }
+
+    public void setHosts(List<String> hosts) {
+        OkHttp.dns().addAll(hosts);
+    }
+
+    public void setProxy(List<String> hosts) {
+        OkHttp.selector().addAll(hosts);
     }
 
     public List<String> getAds() {

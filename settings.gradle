@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         google()
-        flatDir { dirs "$rootDir/app/libs", "$rootDir/quickjs/libs" }
+        flatDir { dirs "$rootDir/app/libs" }
         maven { url "https://jitpack.io" }
         maven {
             url "http://4thline.org/m2"

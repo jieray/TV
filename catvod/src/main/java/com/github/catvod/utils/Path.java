@@ -11,8 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Path {
@@ -62,10 +62,6 @@ public class Path {
 
     public static File jar() {
         return mkdir(new File(cache() + File.separator + "jar"));
-    }
-
-    public static File doh() {
-        return mkdir(new File(cache() + File.separator + "doh"));
     }
 
     public static File exo() {
@@ -121,22 +117,14 @@ public class Path {
     }
 
     public static File local(String path) {
-        File file1 = new File(path.replace("file:/", ""));
-        File file2 = new File(path.replace("file:/", rootPath()));
-        return file2.exists() ? file2 : file1.exists() ? file1 : new File(path);
+        path = path.replace("file:/", "");
+        File file = new File(root(), path);
+        return file.exists() ? file : new File(path);
     }
 
     public static String read(File file) {
         try {
             return read(new FileInputStream(file));
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    public static String read(String path) {
-        try {
-            return read(new FileInputStream(local(path)));
         } catch (Exception e) {
             return "";
         }
@@ -174,8 +162,8 @@ public class Path {
             fos.flush();
             fos.close();
             return file;
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             return file;
         }
     }
@@ -204,9 +192,18 @@ public class Path {
         }
     }
 
+    public static void sort(File[] files) {
+        Arrays.sort(files, (o1, o2) -> {
+            if (o1.isDirectory() && o2.isFile()) return -1;
+            if (o1.isFile() && o2.isDirectory()) return 1;
+            return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+        });
+    }
+
     public static List<File> list(File dir) {
         File[] files = dir.listFiles();
-        return files == null ? Collections.emptyList() : Arrays.asList(files);
+        if (files != null) sort(files);
+        return files == null ? new ArrayList<>() : Arrays.asList(files);
     }
 
     public static void clear(File dir) {
@@ -215,7 +212,7 @@ public class Path {
         if (dir.delete()) Log.d(TAG, "Deleted:" + dir.getAbsolutePath());
     }
 
-    public static File create(File file) throws Exception {
+    public static File create(File file) {
         try {
             if (file.getParentFile() != null) mkdir(file.getParentFile());
             if (!file.canWrite()) file.setWritable(true);

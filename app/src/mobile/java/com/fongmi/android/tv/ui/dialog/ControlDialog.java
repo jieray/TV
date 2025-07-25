@@ -107,8 +107,9 @@ public class ControlDialog extends BaseDialog implements ParseAdapter.OnClickLis
         binding.text.setOnClickListener(v -> dismiss(parent.control.action.text));
         binding.audio.setOnClickListener(v -> dismiss(parent.control.action.audio));
         binding.video.setOnClickListener(v -> dismiss(parent.control.action.video));
+        binding.player.setOnClickListener(v -> dismiss(parent.control.action.player));
+        binding.danmaku.setOnClickListener(v -> dismiss(parent.control.action.danmaku));
         binding.loop.setOnClickListener(v -> active(binding.loop, parent.control.action.loop));
-        binding.player.setOnClickListener(v -> click(binding.player, parent.control.action.player));
         binding.decode.setOnClickListener(v -> click(binding.decode, parent.control.action.decode));
         binding.ending.setOnClickListener(v -> click(binding.ending, parent.control.action.ending));
         binding.opening.setOnClickListener(v -> click(binding.opening, parent.control.action.opening));
@@ -174,10 +175,10 @@ public class ControlDialog extends BaseDialog implements ParseAdapter.OnClickLis
     }
 
     public void setPlayer() {
-        binding.speed.setEnabled(player.canAdjustSpeed());
         binding.speed.setValue(Math.max(player.getSpeed(), 0.5f));
         binding.player.setText(parent.control.action.player.getText());
         binding.decode.setVisibility(parent.control.action.decode.getVisibility());
+        binding.danmaku.setVisibility(parent.control.action.danmaku.getVisibility());
     }
 
     public void setParseVisible(boolean visible) {

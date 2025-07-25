@@ -8,8 +8,7 @@ import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.google.gson.annotations.SerializedName;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import java.util.Calendar;
 
 public class EpgData {
 
@@ -84,13 +83,6 @@ public class EpgData {
         return getStartTime() > System.currentTimeMillis();
     }
 
-    public String format(String group) {
-        String pattern = group.split("\\)")[1].split("\\}")[0];
-        if (group.contains("(b")) return new SimpleDateFormat(pattern, Locale.getDefault()).format(getStartTime());
-        if (group.contains("(e")) return new SimpleDateFormat(pattern, Locale.getDefault()).format(getEndTime());
-        return "";
-    }
-
     public String format() {
         if (getTitle().isEmpty()) return "";
         if (getStart().isEmpty() && getEnd().isEmpty()) return ResUtil.getString(R.string.play_now, getTitle());
@@ -100,6 +92,13 @@ public class EpgData {
     public String getTime() {
         if (getStart().isEmpty() && getEnd().isEmpty()) return "";
         return getStart() + " ~ " + getEnd();
+    }
+
+    public void checkDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(getEndTime());
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        setEndTime(cal.getTimeInMillis());
     }
 
     @Override

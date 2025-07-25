@@ -26,7 +26,7 @@ public class PushActivity extends BaseActivity {
     }
 
     public static void start(Activity activity, int tab) {
-        Intent intent = new Intent(new Intent(activity, PushActivity.class));
+        Intent intent = new Intent(activity, PushActivity.class);
         intent.putExtra("tab", tab);
         activity.startActivity(intent);
     }
@@ -54,7 +54,7 @@ public class PushActivity extends BaseActivity {
 
     private void onClip(View view) {
         CharSequence text = Util.getClipText();
-        if (!TextUtils.isEmpty(text)) VideoActivity.start(this, Sniffer.getUrl(text.toString()), false);
+        if (!TextUtils.isEmpty(text)) VideoActivity.start(this, Sniffer.getUrl(text.toString()));
     }
 
     private void onCode(View view) {

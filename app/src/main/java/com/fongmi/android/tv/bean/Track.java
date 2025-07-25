@@ -1,13 +1,15 @@
 package com.fongmi.android.tv.bean;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
-import androidx.media3.common.C;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.fongmi.android.tv.db.AppDatabase;
 
+import java.util.Collections;
 import java.util.List;
 
 @Entity(indices = @Index(value = {"key", "type"}, unique = true))
@@ -92,21 +94,28 @@ public class Track {
         this.adaptive = adaptive;
     }
 
+    public Track key(String key) {
+        setKey(key);
+        return this;
+    }
+
     public Track toggle() {
         setSelected(!isSelected());
         return this;
     }
 
-    public void save() {
-        if (getType() != C.TRACK_TYPE_TEXT) return;
+    public Track save() {
+        if (TextUtils.isEmpty(getKey())) return this;
         AppDatabase.get().getTrackDao().insert(this);
+        return this;
     }
 
     public static List<Track> find(String key) {
-        return AppDatabase.get().getTrackDao().find(key);
+        return TextUtils.isEmpty(key) ? Collections.emptyList() : AppDatabase.get().getTrackDao().find(key);
     }
 
     public static void delete(String key) {
+        if (TextUtils.isEmpty(key)) return;
         AppDatabase.get().getTrackDao().delete(key);
     }
 }

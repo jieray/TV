@@ -16,7 +16,7 @@ public class Download {
 
     private final File file;
     private final String url;
-    private final Callback callback;
+    private Callback callback;
 
     public static Download create(String url, File file) {
         return create(url, file, null);
@@ -38,20 +38,24 @@ public class Download {
         else App.execute(this::doInBackground);
     }
 
+    public void cancel() {
+        OkHttp.cancel(url);
+        Path.clear(file);
+        callback = null;
+    }
+
     private void doInBackground() {
-        try {
+        try (Response res = OkHttp.newCall(url, url).execute()) {
             Path.create(file);
-            Response response = OkHttp.newCall(url).execute();
-            download(response.body().byteStream(), Double.parseDouble(response.header(HttpHeaders.CONTENT_LENGTH, "1")));
-            if (callback != null) App.post(() -> callback.success(file));
+            download(res.body().byteStream(), Double.parseDouble(res.header(HttpHeaders.CONTENT_LENGTH, "1")));
+            App.post(() -> {if (callback != null) callback.success(file);});
         } catch (Exception e) {
-            if (callback != null) App.post(() -> callback.error(e.getMessage()));
+            App.post(() -> {if (callback != null) callback.error(e.getMessage());});
         }
     }
 
     private void download(InputStream is, double length) throws Exception {
-        FileOutputStream os = new FileOutputStream(file);
-        try (BufferedInputStream input = new BufferedInputStream(is)) {
+        try (BufferedInputStream input = new BufferedInputStream(is); FileOutputStream os = new FileOutputStream(file)) {
             byte[] buffer = new byte[4096];
             int readBytes;
             long totalBytes = 0;
@@ -59,7 +63,7 @@ public class Download {
                 totalBytes += readBytes;
                 os.write(buffer, 0, readBytes);
                 int progress = (int) (totalBytes / length * 100.0);
-                if (callback != null) App.post(() -> callback.progress(progress));
+                App.post(() -> {if (callback != null) callback.progress(progress);});
             }
         }
     }

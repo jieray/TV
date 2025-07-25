@@ -1,6 +1,7 @@
 package com.fongmi.android.tv.player.extractor;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
@@ -17,11 +18,13 @@ import com.tvbus.engine.Listener;
 import com.tvbus.engine.TVCore;
 
 import java.io.File;
+import java.util.concurrent.CountDownLatch;
 
 public class TVBus implements Source.Extractor, Listener {
 
+    private CountDownLatch latch;
+    private volatile String hls;
     private TVCore tvcore;
-    private String hls;
     private Core core;
 
     @Override
@@ -30,60 +33,50 @@ public class TVBus implements Source.Extractor, Listener {
     }
 
     private void init(Core core) {
-        App.get().setHook(core.getHook());
-        tvcore = new TVCore(getPath(core.getSo())).listener(this);
-        tvcore.auth(core.getAuth()).name(core.getName()).pass(core.getPass());
-        tvcore.domain(core.getDomain()).broker(core.getBroker()).serv(0).play(8902).mode(1);
-        tvcore.init();
+        try {
+            App.get().setHook(core.getHook());
+            tvcore = new TVCore(getPath(core.getSo())).listener(this).auth(core.getAuth()).name(core.getName()).pass(core.getPass()).domain(core.getDomain()).broker(core.getBroker()).serv(0).play(8902).mode(1).init();
+        } catch (Exception ignored) {
+        } finally {
+            App.get().setHook(null);
+        }
     }
 
     private String getPath(String url) {
-        try {
-            File file = new File(Path.so(), Uri.parse(url).getLastPathSegment());
-            if (file.length() < 10240) Path.write(file, OkHttp.newCall(url).execute().body().bytes());
-            return file.getAbsolutePath();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+        String name = Uri.parse(url).getLastPathSegment();
+        if (TextUtils.isEmpty(name)) name = "tvcore.so";
+        File file = new File(Path.so(), name);
+        if (file.length() < 10240) Path.write(file, OkHttp.bytes(url));
+        return file.getAbsolutePath();
     }
 
     @Override
     public String fetch(String url) throws Exception {
-        if (core != null && !core.equals(LiveConfig.get().getHome().getCore())) change();
-        if (tvcore == null) init(core = LiveConfig.get().getHome().getCore());
-        App.get().setHook(null);
+        Core c = LiveConfig.get().getHome().getCore();
+        if (core != null && !core.equals(c)) change();
+        if (tvcore == null) init(core = c);
+        latch = new CountDownLatch(1);
         tvcore.start(url);
-        onWait();
-        onCheck();
-        return hls;
+        latch.await();
+        return check();
     }
 
-    private void onCheck() throws Exception {
-        if (hls.startsWith("-")) throw new ExtractException(ResUtil.getString(R.string.error_play_code, hls));
-    }
-
-    private void onWait() throws InterruptedException {
-        synchronized (this) {
-            wait();
-        }
-    }
-
-    private void onNotify() {
-        synchronized (this) {
-            notify();
-        }
-    }
-
-    private void change() {
+    private void change() throws Exception {
         Setting.putBootLive(true);
-        App.post(() -> System.exit(0), 250);
+        App.post(() -> System.exit(0), 100);
+        throw new ExtractException(ResUtil.getString(R.string.error_play_url));
+    }
+
+    private String check() throws Exception {
+        if (hls == null) return "";
+        if (!hls.startsWith("-")) return hls;
+        throw new ExtractException(ResUtil.getString(R.string.error_play_code, hls));
     }
 
     @Override
     public void stop() {
         if (tvcore != null) tvcore.stop();
-        if (hls != null) hls = null;
+        hls = null;
     }
 
     @Override
@@ -97,14 +90,14 @@ public class TVBus implements Source.Extractor, Listener {
         JsonObject json = App.gson().fromJson(result, JsonObject.class);
         if (json.get("hls") == null) return;
         hls = json.get("hls").getAsString();
-        onNotify();
+        latch.countDown();
     }
 
     @Override
     public void onStop(String result) {
         JsonObject json = App.gson().fromJson(result, JsonObject.class);
         hls = json.get("errno").getAsString();
-        if (hls.startsWith("-")) onNotify();
+        if (hls.startsWith("-")) latch.countDown();
     }
 
     @Override

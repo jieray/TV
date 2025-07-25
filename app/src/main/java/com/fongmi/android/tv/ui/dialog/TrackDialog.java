@@ -15,7 +15,6 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.Tracks;
 import androidx.viewbinding.ViewBinding;
 
-import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.bean.Sub;
 import com.fongmi.android.tv.bean.Track;
@@ -96,7 +95,7 @@ public final class TrackDialog extends BaseDialog implements TrackAdapter.OnClic
     }
 
     private void showChooser(View view) {
-        FileChooser.from(this).show(new String[]{MimeTypes.APPLICATION_SUBRIP, MimeTypes.TEXT_SSA, MimeTypes.TEXT_VTT, MimeTypes.APPLICATION_TTML, "text/*", "application/octet-stream"});
+        FileChooser.from(this).show(new String[]{MimeTypes.APPLICATION_SUBRIP, MimeTypes.TEXT_SSA, MimeTypes.TEXT_VTT, MimeTypes.APPLICATION_TTML, "audio/*", "text/*", "application/octet-stream"});
         player.pause();
     }
 
@@ -124,8 +123,7 @@ public final class TrackDialog extends BaseDialog implements TrackAdapter.OnClic
 
     @Override
     public void onItemClick(Track item) {
-        if (listener != null) listener.onTrackClick(item);
-        player.setTrack(Arrays.asList(item));
+        player.setTrack(Arrays.asList(item.key(player.getKey()).save()));
         if (item.isAdaptive()) return;
         dismiss();
     }
@@ -134,13 +132,11 @@ public final class TrackDialog extends BaseDialog implements TrackAdapter.OnClic
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK || requestCode != FileChooser.REQUEST_PICK_FILE) return;
-        App.post(() -> player.setSub(Sub.from(FileChooser.getPathFromUri(data.getData()))), 250);
+        player.setSub(Sub.from(FileChooser.getPathFromUri(data.getData())));
         dismiss();
     }
 
     public interface Listener {
-
-        void onTrackClick(Track item);
 
         void onSubtitleClick();
     }

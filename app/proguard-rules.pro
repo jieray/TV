@@ -55,6 +55,21 @@
 # Jianpian
 -keep class com.p2p.** { *; }
 
+# Nano
+-keep class fi.iki.elonen.** { *; }
+
+# NewPipeExtractor
+-keep class org.schabi.newpipe.extractor.timeago.patterns.** { *; }
+-keep class org.mozilla.javascript.* { *; }
+-keep class org.mozilla.javascript.** { *; }
+-keep class org.mozilla.javascript.engine.** { *; }
+-keep class javax.script.** { *; }
+-keep class jdk.dynalink.** { *; }
+-dontwarn org.mozilla.javascript.JavaToJSONConverters
+-dontwarn org.mozilla.javascript.tools.**
+-dontwarn javax.script.**
+-dontwarn jdk.dynalink.**
+
 # QuickJS
 -keep class com.fongmi.quickjs.method.** { *; }
 
@@ -77,7 +92,3 @@
 
 # Zxing
 -keep class com.google.zxing.** { *; }
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}

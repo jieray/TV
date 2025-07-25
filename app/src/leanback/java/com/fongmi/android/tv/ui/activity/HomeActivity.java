@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 
-import com.android.cast.dlna.dmr.DLNARendererService;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -60,6 +59,7 @@ import com.fongmi.android.tv.utils.KeyUtil;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.fongmi.android.tv.utils.UrlUtil;
+import com.github.catvod.net.OkHttp;
 import com.google.common.collect.Lists;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -95,10 +95,9 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
     @Override
     protected void initView() {
-        DLNARendererService.Companion.start(this, R.drawable.ic_logo);
         mClock = Clock.create(mBinding.clock).format("MM/dd HH:mm:ss");
         mBinding.progressLayout.showProgress();
-        Updater.get().release().start(this);
+        Updater.create().release().start(this);
         mResult = Result.empty();
         Server.get().start();
         setRecyclerView();
@@ -235,6 +234,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
         adapter.add(Func.create(R.string.home_search));
         adapter.add(Func.create(R.string.home_keep));
         adapter.add(Func.create(R.string.home_push));
+        adapter.add(Func.create(R.string.home_cast));
         adapter.add(Func.create(R.string.home_setting));
         return new ListRow(adapter);
     }
@@ -332,7 +332,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     public void onServerEvent(ServerEvent event) {
         switch (event.getType()) {
             case SEARCH:
-                CollectActivity.start(this, event.getText(), true);
+                CollectActivity.start(this, event.getText());
                 break;
             case PUSH:
                 VideoActivity.push(this, event.getText());
@@ -384,6 +384,9 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
             case R.string.home_push:
                 PushActivity.start(this);
                 break;
+            case R.string.home_cast:
+                CastActivity.start(this);
+                break;
             case R.string.home_setting:
                 SettingActivity.start(this);
                 break;
@@ -394,7 +397,7 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
     public void onItemClick(Vod item) {
         if (item.isAction()) mViewModel.action(getHome().getKey(), item.getAction());
         else if (getHome().isIndex()) CollectActivity.start(getActivity(), item.getVodName());
-        else VideoActivity.start(this, item.getVodId(), item.getVodName(), item.getVodPic());
+        else VideoActivity.start(this, getHome().getKey(), item.getVodId(), item.getVodName(), item.getVodPic());
     }
 
     @Override
@@ -481,12 +484,13 @@ public class HomeActivity extends BaseActivity implements CustomTitleView.Listen
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         WallConfig.get().clear();
         LiveConfig.get().clear();
         VodConfig.get().clear();
+        OkHttp.get().clear();
         AppDatabase.backup();
         Server.get().stop();
         Source.get().exit();
+        super.onDestroy();
     }
 }

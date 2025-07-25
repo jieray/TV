@@ -6,7 +6,7 @@ plugins {
 android {
     namespace 'com.fongmi.chaquo'
 
-    compileSdk 35
+    compileSdk 36
     flavorDimensions = ["abi"]
 
     defaultConfig {
@@ -15,23 +15,12 @@ android {
         python {
             version "3.8"
             pip {
-                install "lxml"
-                install "ujson"
-                install "pyquery"
-                install "requests"
-                install "jsonpath"
-                install "cachetools"
-                install 'pycryptodome'
-                install 'beautifulsoup4'
+                install("-r", "requirements.txt")
             }
         }
     }
 
     productFlavors {
-        x86 {
-            dimension "abi"
-            ndk { abiFilters "x86" }
-        }
         arm64_v8a {
             dimension "abi"
             ndk { abiFilters "arm64-v8a" }
@@ -46,6 +35,11 @@ android {
         main {
             python.srcDirs = ["src/main/python"]
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 

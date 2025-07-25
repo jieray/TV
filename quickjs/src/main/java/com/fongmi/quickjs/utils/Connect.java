@@ -30,7 +30,7 @@ public class Connect {
     }
 
     public static JSObject success(QuickJSContext ctx, Req req, Response res) {
-        try {
+        try (res) {
             JSObject jsObject = ctx.createNewJSObject();
             JSObject jsHeader = ctx.createNewJSObject();
             setHeader(ctx, res, jsHeader);
@@ -39,6 +39,7 @@ public class Connect {
             if (req.getBuffer() == 0) jsObject.setProperty("content", new String(res.body().bytes(), req.getCharset()));
             if (req.getBuffer() == 1) jsObject.setProperty("content", JSUtil.toArray(ctx, res.body().bytes()));
             if (req.getBuffer() == 2) jsObject.setProperty("content", Util.base64(res.body().bytes()));
+            if (req.getBuffer() == 3) jsObject.setProperty("content", res.body().bytes());
             return jsObject;
         } catch (Exception e) {
             return error(ctx);

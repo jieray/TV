@@ -137,14 +137,6 @@ public class Setting {
         Prefers.put("background", background);
     }
 
-    public static int getRtsp() {
-        return Prefers.getInt("rtsp");
-    }
-
-    public static void putRtsp(int rtsp) {
-        Prefers.put("rtsp", rtsp);
-    }
-
     public static int getSiteMode() {
         return Prefers.getInt("site_mode");
     }
@@ -223,6 +215,46 @@ public class Setting {
 
     public static void putTunnel(boolean tunnel) {
         Prefers.put("tunnel", tunnel);
+    }
+
+    public static boolean isAudioPrefer() {
+        return Prefers.getBoolean("audio_prefer");
+    }
+
+    public static void putAudioPrefer(boolean audioPrefer) {
+        Prefers.put("audio_prefer", audioPrefer);
+    }
+
+    public static boolean isVideoPrefer() {
+        return Prefers.getBoolean("video_prefer");
+    }
+
+    public static void putVideoPrefer(boolean videoPrefer) {
+        Prefers.put("video_prefer", videoPrefer);
+    }
+
+    public static boolean isPreferAAC() {
+        return Prefers.getBoolean("prefer_aac");
+    }
+
+    public static void putPreferAAC(boolean preferAAC) {
+        Prefers.put("prefer_aac", preferAAC);
+    }
+
+    public static boolean isDanmakuLoad() {
+        return Prefers.getBoolean("danmaku_load");
+    }
+
+    public static void putDanmakuLoad(boolean danmakuLoad) {
+        Prefers.put("danmaku_load", danmakuLoad);
+    }
+
+    public static boolean isDanmakuShow() {
+        return Prefers.getBoolean("danmaku_show");
+    }
+
+    public static void putDanmakuShow(boolean danmakuShow) {
+        Prefers.put("danmaku_show", danmakuShow);
     }
 
     public static boolean isZhuyin() {

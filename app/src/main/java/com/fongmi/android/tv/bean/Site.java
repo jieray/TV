@@ -15,6 +15,7 @@ import com.fongmi.android.tv.api.loader.BaseLoader;
 import com.fongmi.android.tv.db.AppDatabase;
 import com.fongmi.android.tv.gson.ExtAdapter;
 import com.github.catvod.crawler.Spider;
+import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Json;
 import com.github.catvod.utils.Trans;
 import com.google.gson.JsonElement;
@@ -24,6 +25,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
 
@@ -63,6 +65,10 @@ public class Site implements Parcelable {
     @Ignore
     @SerializedName("type")
     private Integer type;
+
+    @Ignore
+    @SerializedName("hide")
+    private Integer hide;
 
     @Ignore
     @SerializedName("indexs")
@@ -173,12 +179,16 @@ public class Site implements Parcelable {
         return type == null ? 0 : type;
     }
 
+    public Integer getHide() {
+        return hide == null ? 0 : hide;
+    }
+
     public Integer getIndexs() {
         return indexs == null ? 0 : indexs;
     }
 
-    public Integer getTimeout() {
-        return timeout == null ? Constant.TIMEOUT_PLAY : Math.max(timeout, 1) * 1000;
+    public long getTimeout() {
+        return timeout == null ? Constant.TIMEOUT_PLAY : TimeUnit.SECONDS.toMillis(Math.max(timeout, 1));
     }
 
     public Integer getSearchable() {
@@ -233,6 +243,10 @@ public class Site implements Parcelable {
         this.activated = item.equals(this);
     }
 
+    public boolean isHide() {
+        return getHide() == 1;
+    }
+
     public boolean isIndex() {
         return getIndexs() == 1;
     }
@@ -265,6 +279,13 @@ public class Site implements Parcelable {
 
     public Headers getHeaders() {
         return Headers.of(Json.toMap(getHeader()));
+    }
+
+    public Site fetchExt() {
+        if (!getExt().startsWith("http")) return this;
+        String extend = OkHttp.string(getExt());
+        if (!extend.isEmpty()) setExt(extend);
+        return this;
     }
 
     public Site trans() {

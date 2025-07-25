@@ -7,62 +7,55 @@ import org.greenrobot.eventbus.EventBus;
 
 public class ErrorEvent {
 
+    private final String tag;
     private final Type type;
     private String msg;
-    private int code;
 
-    public static void url() {
-        EventBus.getDefault().post(new ErrorEvent(Type.URL, -1));
+    public static void url(String tag) {
+        EventBus.getDefault().post(new ErrorEvent(tag, Type.URL));
     }
 
-    public static void url(int code) {
-        EventBus.getDefault().post(new ErrorEvent(Type.URL, code));
+    public static void drm(String tag) {
+        EventBus.getDefault().post(new ErrorEvent(tag, Type.DRM));
     }
 
-    public static void drm() {
-        EventBus.getDefault().post(new ErrorEvent(Type.DRM, -1));
+    public static void flag(String tag) {
+        EventBus.getDefault().post(new ErrorEvent(tag, Type.FLAG));
     }
 
-    public static void flag() {
-        EventBus.getDefault().post(new ErrorEvent(Type.FLAG, -1));
+    public static void parse(String tag) {
+        EventBus.getDefault().post(new ErrorEvent(tag, Type.PARSE));
     }
 
-    public static void parse() {
-        EventBus.getDefault().post(new ErrorEvent(Type.PARSE, -1));
+    public static void timeout(String tag) {
+        EventBus.getDefault().post(new ErrorEvent(tag, Type.TIMEOUT));
     }
 
-    public static void timeout() {
-        EventBus.getDefault().post(new ErrorEvent(Type.TIMEOUT, -1));
+    public static void extract(String tag, String msg) {
+        EventBus.getDefault().post(new ErrorEvent(tag, Type.EXTRACT, msg));
     }
 
-    public static void extract(String msg) {
-        EventBus.getDefault().post(new ErrorEvent(Type.EXTRACT, msg));
-    }
-
-    public ErrorEvent(Type type, int code) {
+    public ErrorEvent(String tag, Type type) {
         this.type = type;
-        this.code = code;
+        this.tag = tag;
     }
 
-    public ErrorEvent(Type type, String msg) {
+    public ErrorEvent(String tag, Type type, String msg) {
+        this.type = type;
+        this.tag = tag;
         this.msg = msg;
-        this.type = type;
     }
 
     public Type getType() {
         return type;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public boolean isExo() {
-        return code / 1000 == 2 || code / 1000 == 3 || code / 1000 == 4;
+    public String getTag() {
+        return tag;
     }
 
     public String getMsg() {
-        if (type == Type.URL) return ResUtil.getString(code == -1 ? R.string.error_play_url : R.string.error_play_url_code, code);
+        if (type == Type.URL) return ResUtil.getString(R.string.error_play_url);
         if (type == Type.DRM) return ResUtil.getString(R.string.error_play_drm_scheme);
         if (type == Type.FLAG) return ResUtil.getString(R.string.error_play_flag);
         if (type == Type.PARSE) return ResUtil.getString(R.string.error_play_parse);
