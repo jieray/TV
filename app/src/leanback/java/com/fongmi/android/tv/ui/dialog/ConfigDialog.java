@@ -78,7 +78,7 @@ public class ConfigDialog implements DialogInterface.OnDismissListener {
     }
 
     private void initView() {
-        String hem = "https://mirror.ghproxy.com/https://github.com/jieray/TVB/blob/main/0808.json";
+        String hem = "https://gh-proxy.com/https://github.com/jieray/tvboxtg/blob/main/dx.json";
         url = TextUtils.isEmpty(getUrl())? hem :getUrl();
         binding.text.setText(url);
         binding.text.setSelection(TextUtils.isEmpty(url) ? 0 : url.length());

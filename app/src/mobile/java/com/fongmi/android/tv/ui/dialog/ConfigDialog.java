@@ -67,7 +67,7 @@ public class ConfigDialog {
     }
 
     private void initView() {
-        String hem = "https://mirror.ghproxy.com/https://github.com/jieray/TVB/blob/main/0808.json";
+        String hem = "https://gh-proxy.com/https://github.com/jieray/tvboxtg/blob/main/dx.json";
         ori = TextUtils.isEmpty(Objects.requireNonNull(getConfig()).getUrl())?hem:getConfig().getUrl();
         binding.name.setText(getConfig().getName());
         binding.url.setText(ori);
