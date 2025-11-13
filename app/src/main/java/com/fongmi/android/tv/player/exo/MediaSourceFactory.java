@@ -68,6 +68,7 @@ public class MediaSourceFactory implements MediaSource.Factory {
 
     private MediaItem setHeader(MediaItem mediaItem) {
         Map<String, String> headers = new HashMap<>();
+        if (mediaItem.requestMetadata.extras == null) return mediaItem;
         for (String key : mediaItem.requestMetadata.extras.keySet()) headers.put(key, mediaItem.requestMetadata.extras.get(key).toString());
         getHttpDataSourceFactory().setDefaultRequestProperties(headers);
         return mediaItem;
@@ -97,7 +98,7 @@ public class MediaSourceFactory implements MediaSource.Factory {
     }
 
     private HttpDataSource.Factory getHttpDataSourceFactory() {
-        if (httpDataSourceFactory == null) httpDataSourceFactory = new OkHttpDataSource.Factory(OkHttp.client());
+        if (httpDataSourceFactory == null) httpDataSourceFactory = new OkHttpDataSource.Factory(OkHttp.player());
         return httpDataSourceFactory;
     }
 }

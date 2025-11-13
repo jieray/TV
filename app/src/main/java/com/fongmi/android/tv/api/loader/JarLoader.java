@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dalvik.system.DexClassLoader;
@@ -35,7 +36,7 @@ public class JarLoader {
     }
 
     public void clear() {
-        for (Spider spider : spiders.values()) App.execute(spider::destroy);
+        spiders.values().forEach(Spider::destroy);
         loaders.clear();
         methods.clear();
         spiders.clear();
@@ -46,14 +47,14 @@ public class JarLoader {
     }
 
     private void load(String key, File file) {
-        if (!file.setReadOnly()) return;
+        if (!Path.exists(file) || !file.setReadOnly()) return;
         loaders.put(key, dex(file));
         invokeInit(key);
         putProxy(key);
     }
 
     private DexClassLoader dex(File file) {
-        return new DexClassLoader(file.getAbsolutePath(), Path.jar().getAbsolutePath(), null, App.get().getClassLoader());
+        return new DexClassLoader(file.getAbsolutePath(), Path.jar().getAbsolutePath(), Path.jar().getAbsolutePath(), App.get().getClassLoader());
     }
 
     private void invokeInit(String key) {
@@ -141,17 +142,13 @@ public class JarLoader {
     }
 
     public Object[] proxyInvoke(Map<String, String> params) {
+        if (recent == null) return tryOthers(params);
         Object[] result = proxyInvoke(methods.get(recent), params);
         return result != null ? result : tryOthers(params);
     }
 
-    private Object[] tryOthers(Map<String, String> params) {
-        for (Map.Entry<String, Method> entry : methods.entrySet()) {
-            if (entry.getKey().equals(recent)) continue;
-            Object[] result = proxyInvoke(entry.getValue(), params);
-            if (result != null) return result;
-        }
-        return null;
+    private Object[] tryOthers(Map<String, String> p) {
+        return methods.entrySet().stream().filter(e -> !e.getKey().equals(recent)).map(e -> proxyInvoke(e.getValue(), p)).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     private Object[] proxyInvoke(Method method, Map<String, String> params) {

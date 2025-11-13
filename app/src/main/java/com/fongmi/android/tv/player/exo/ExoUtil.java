@@ -14,7 +14,6 @@ import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.DefaultLoadControl;
-import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.LoadControl;
 import androidx.media3.exoplayer.RenderersFactory;
@@ -35,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
+
 public class ExoUtil {
 
     public static String getUa() {
@@ -42,17 +43,22 @@ public class ExoUtil {
     }
 
     public static LoadControl buildLoadControl() {
-        return new DefaultLoadControl();
+        return new DefaultLoadControl.Builder().setBufferDurationsMs(DefaultLoadControl.DEFAULT_MIN_BUFFER_MS * Setting.getBuffer(), DefaultLoadControl.DEFAULT_MAX_BUFFER_MS * Setting.getBuffer(), DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS, DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS).build();
     }
 
     public static TrackSelector buildTrackSelector() {
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(App.get());
-        trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage(Locale.getDefault().getISO3Language()).setForceHighestSupportedBitrate(true).setTunnelingEnabled(Setting.isTunnel()));
+        DefaultTrackSelector.Parameters.Builder builder = trackSelector.buildUponParameters();
+        if (Setting.isPreferAAC()) builder.setPreferredAudioMimeType(MimeTypes.AUDIO_AAC);
+        builder.setPreferredTextLanguage(Locale.getDefault().getISO3Language());
+        builder.setTunnelingEnabled(Setting.isTunnel());
+        builder.setForceHighestSupportedBitrate(true);
+        trackSelector.setParameters(builder.build());
         return trackSelector;
     }
 
     public static RenderersFactory buildRenderersFactory(int renderMode) {
-        return new DefaultRenderersFactory(App.get()).setEnableDecoderFallback(true).setExtensionRendererMode(renderMode);
+        return new NextRenderersFactory(App.get()).setAudioPrefer(Setting.isAudioPrefer()).setVideoPrefer(Setting.isVideoPrefer()).setEnableDecoderFallback(true).setExtensionRendererMode(renderMode);
     }
 
     public static MediaSource.Factory buildMediaSourceFactory() {
@@ -69,18 +75,6 @@ public class ExoUtil {
         return count > 0;
     }
 
-    public static void selectTrack(ExoPlayer player, int group, int track) {
-        List<Integer> trackIndices = new ArrayList<>();
-        selectTrack(player, group, track, trackIndices);
-        setTrackParameters(player, group, trackIndices);
-    }
-
-    public static void deselectTrack(ExoPlayer player, int group, int track) {
-        List<Integer> trackIndices = new ArrayList<>();
-        deselectTrack(player, group, track, trackIndices);
-        setTrackParameters(player, group, trackIndices);
-    }
-
     public static void resetTrack(ExoPlayer player) {
         player.setTrackSelectionParameters(player.getTrackSelectionParameters().buildUpon().clearOverrides().build());
     }
@@ -89,6 +83,7 @@ public class ExoUtil {
         exo.getSubtitleView().setStyle(getCaptionStyle());
         exo.getSubtitleView().setApplyEmbeddedFontSizes(false);
         exo.getSubtitleView().setApplyEmbeddedStyles(!Setting.isCaption());
+        if (Setting.getSubtitlePosition() != 0) exo.getSubtitleView().setBottomPosition(Setting.getSubtitlePosition());
         if (Setting.getSubtitleTextSize() != 0) exo.getSubtitleView().setFractionalTextSize(Setting.getSubtitleTextSize());
     }
 
@@ -101,6 +96,7 @@ public class ExoUtil {
     }
 
     public static String getMimeType(int errorCode) {
+        if (errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED || errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED) return MimeTypes.APPLICATION_OCTET;
         if (errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED || errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED || errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED) return MimeTypes.APPLICATION_M3U8;
         return null;
     }
@@ -111,7 +107,10 @@ public class ExoUtil {
         builder.setSubtitleConfigurations(getSubtitleConfigs(subs));
         if (drm != null) builder.setDrmConfiguration(drm.get());
         if (mimeType != null) builder.setMimeType(mimeType);
+        builder.setAdblock(Setting.isAdblock());
         builder.setMediaId(uri.toString());
+        builder.setImageDurationMs(15000);
+        builder.setDecode(decode);
         return builder.build();
     }
 
@@ -123,28 +122,26 @@ public class ExoUtil {
 
     private static List<MediaItem.SubtitleConfiguration> getSubtitleConfigs(List<Sub> subs) {
         List<MediaItem.SubtitleConfiguration> configs = new ArrayList<>();
-        for (Sub sub : subs) configs.add(sub.config());
+        if (subs != null) for (Sub sub : subs) configs.add(sub.config());
         return configs;
     }
 
-    private static void selectTrack(ExoPlayer player, int group, int track, List<Integer> trackIndices) {
-        if (group >= player.getCurrentTracks().getGroups().size()) return;
-        Tracks.Group trackGroup = player.getCurrentTracks().getGroups().get(group);
-        for (int i = 0; i < trackGroup.length; i++) {
-            if (i == track || trackGroup.isTrackSelected(i)) trackIndices.add(i);
-        }
+    public static void selectTrack(ExoPlayer player, int groupIndex, int trackIndex) {
+        Tracks currentTracks = player.getCurrentTracks();
+        if (groupIndex >= currentTracks.getGroups().size()) return;
+        Tracks.Group trackGroupInfo = currentTracks.getGroups().get(groupIndex);
+        if (trackIndex < 0 || trackIndex >= trackGroupInfo.length) return;
+        TrackSelectionOverride override = new TrackSelectionOverride(trackGroupInfo.getMediaTrackGroup(), trackIndex);
+        player.setTrackSelectionParameters(player.getTrackSelectionParameters().buildUpon().setOverrideForType(override).build());
     }
 
-    private static void deselectTrack(ExoPlayer player, int group, int track, List<Integer> trackIndices) {
-        if (group >= player.getCurrentTracks().getGroups().size()) return;
-        Tracks.Group trackGroup = player.getCurrentTracks().getGroups().get(group);
-        for (int i = 0; i < trackGroup.length; i++) {
-            if (i != track && trackGroup.isTrackSelected(i)) trackIndices.add(i);
-        }
-    }
-
-    private static void setTrackParameters(ExoPlayer player, int group, List<Integer> trackIndices) {
-        if (group >= player.getCurrentTracks().getGroups().size()) return;
-        player.setTrackSelectionParameters(player.getTrackSelectionParameters().buildUpon().setOverrideForType(new TrackSelectionOverride(player.getCurrentTracks().getGroups().get(group).getMediaTrackGroup(), trackIndices)).build());
+    public static void deselectTrack(ExoPlayer player, int groupIndex, int trackIndex) {
+        Tracks currentTracks = player.getCurrentTracks();
+        if (groupIndex >= currentTracks.getGroups().size()) return;
+        Tracks.Group trackGroupInfo = currentTracks.getGroups().get(groupIndex);
+        List<Integer> trackIndices = new ArrayList<>();
+        for (int i = 0; i < trackGroupInfo.length; i++) if (i != trackIndex && trackGroupInfo.isTrackSelected(i)) trackIndices.add(i);
+        TrackSelectionOverride override = new TrackSelectionOverride(trackGroupInfo.getMediaTrackGroup(), trackIndices);
+        player.setTrackSelectionParameters(player.getTrackSelectionParameters().buildUpon().setOverrideForType(override).build());
     }
 }

@@ -24,8 +24,12 @@ public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        initMenu();
         initView();
         initEvent();
+    }
+
+    protected void initMenu() {
     }
 
     protected void initView() {
@@ -50,7 +54,7 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) if (isResumed()) onVisible();
+        if (isVisibleToUser && isResumed()) onVisible();
     }
 
     @Override

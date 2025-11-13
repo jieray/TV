@@ -6,12 +6,11 @@ plugins {
 android {
     namespace 'com.fongmi.chaquo'
 
-    compileSdk 36
-    flavorDimensions = ["abi"]
+    compileSdk = 36
 
     defaultConfig {
-        minSdk 21
-        targetSdk 28
+        minSdk 24
+        targetSdk 36
         python {
             version "3.8"
             pip {
@@ -19,6 +18,8 @@ android {
             }
         }
     }
+
+    flavorDimensions = ["abi"]
 
     productFlavors {
         arm64_v8a {
@@ -38,8 +39,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 

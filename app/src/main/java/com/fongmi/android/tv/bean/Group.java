@@ -2,6 +2,7 @@ package com.fongmi.android.tv.bean;
 
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import com.fongmi.android.tv.App;
@@ -154,11 +155,10 @@ public class Group {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj == null) return false;
         if (this == obj) return true;
-        if (!(obj instanceof Group)) return false;
-        Group it = (Group) obj;
+        if (!(obj instanceof Group it)) return false;
         return getName().equals(it.getName()) && getChannel().size() == it.getChannel().size();
     }
 }

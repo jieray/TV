@@ -3,12 +3,15 @@ package com.fongmi.android.tv.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.impl.Diffable;
 import com.fongmi.android.tv.utils.Util;
 import com.github.catvod.utils.Trans;
 import com.google.gson.annotations.SerializedName;
 
-public class Episode implements Parcelable {
+public class Episode implements Parcelable, Diffable<Episode> {
 
     @SerializedName("name")
     private String name;
@@ -109,16 +112,16 @@ public class Episode implements Parcelable {
         return name.toLowerCase().contains(getName().toLowerCase());
     }
 
-    public boolean equals(Episode episode) {
-        return rule1(episode.getName());
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Episode it)) return false;
+        return getName().equals(it.getName());
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Episode)) return false;
-        Episode it = (Episode) obj;
-        return getUrl().equals(it.getUrl()) && getName().equals(it.getName());
+    public int hashCode() {
+        return getName().hashCode();
     }
 
     @Override
@@ -156,4 +159,14 @@ public class Episode implements Parcelable {
             return new Episode[size];
         }
     };
+
+    @Override
+    public boolean isSameItem(Episode other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean isSameContent(Episode other) {
+        return getUrl().equals(other.getUrl()) && getDesc().equals(other.getDesc());
+    }
 }

@@ -1,5 +1,6 @@
 package com.fongmi.android.tv.player.exo;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.text.TextUtils;
 
@@ -14,6 +15,7 @@ import com.fongmi.android.tv.App;
 
 import java.util.Locale;
 
+@SuppressLint("PrivateResource")
 public class TrackNameProvider {
 
     private final Resources resources;
@@ -54,19 +56,13 @@ public class TrackNameProvider {
     private String buildAudioChannelString(Format format) {
         int channelCount = format.channelCount;
         if (channelCount < 1) return "";
-        switch (channelCount) {
-            case 1:
-                return resources.getString(R.string.exo_track_mono);
-            case 2:
-                return resources.getString(R.string.exo_track_stereo);
-            case 6:
-            case 7:
-                return resources.getString(R.string.exo_track_surround_5_point_1);
-            case 8:
-                return resources.getString(R.string.exo_track_surround_7_point_1);
-            default:
-                return resources.getString(R.string.exo_track_surround);
-        }
+        return switch (channelCount) {
+            case 1 -> resources.getString(R.string.exo_track_mono);
+            case 2 -> resources.getString(R.string.exo_track_stereo);
+            case 6, 7 -> resources.getString(R.string.exo_track_surround_5_point_1);
+            case 8 -> resources.getString(R.string.exo_track_surround_7_point_1);
+            default -> resources.getString(R.string.exo_track_surround);
+        };
     }
 
     private String buildLanguageOrLabelString(Format format) {
@@ -83,7 +79,7 @@ public class TrackNameProvider {
         if ("chs".equals(language)) language = "zh-Hans";
         if ("cht".equals(language)) language = "zh-Hant";
         if (TextUtils.isEmpty(language) || C.LANGUAGE_UNDETERMINED.equals(language)) return "";
-        Locale languageLocale = Util.SDK_INT >= 21 ? Locale.forLanguageTag(language) : new Locale(language);
+        Locale languageLocale = Locale.forLanguageTag(language);
         Locale displayLocale = Util.getDefaultDisplayLocale();
         String languageName = languageLocale.getDisplayName(displayLocale);
         if (TextUtils.isEmpty(languageName)) return "";

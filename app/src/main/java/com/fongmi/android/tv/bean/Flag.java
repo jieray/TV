@@ -5,8 +5,10 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.impl.Diffable;
 import com.fongmi.android.tv.utils.Util;
 import com.github.catvod.utils.Trans;
 import com.google.gson.annotations.SerializedName;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class Flag implements Parcelable {
+public class Flag implements Parcelable, Diffable<Flag> {
 
     @Attribute(name = "flag", required = false)
     @SerializedName("flag")
@@ -110,7 +112,7 @@ public class Flag implements Parcelable {
 
     public Episode find(String remarks, boolean strict) {
         int number = Util.getDigit(remarks);
-        if (getEpisodes().size() == 0) return null;
+        if (getEpisodes().isEmpty()) return null;
         if (getEpisodes().size() == 1) return getEpisodes().get(0);
         for (Episode item : getEpisodes()) if (item.rule1(remarks)) return item;
         for (Episode item : getEpisodes()) if (item.rule2(number)) return item;
@@ -127,11 +129,15 @@ public class Flag implements Parcelable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof Flag)) return false;
-        Flag it = (Flag) obj;
+        if (!(obj instanceof Flag it)) return false;
         return getFlag().equals(it.getFlag());
+    }
+
+    @Override
+    public int hashCode() {
+        return getFlag().hashCode();
     }
 
     @NonNull
@@ -175,4 +181,14 @@ public class Flag implements Parcelable {
             return new Flag[size];
         }
     };
+
+    @Override
+    public boolean isSameItem(Flag other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean isSameContent(Flag other) {
+        return equals(other);
+    }
 }

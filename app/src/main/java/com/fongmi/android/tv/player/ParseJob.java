@@ -12,6 +12,7 @@ import com.fongmi.android.tv.impl.ParseCallback;
 import com.fongmi.android.tv.server.Server;
 import com.fongmi.android.tv.ui.custom.CustomWebView;
 import com.fongmi.android.tv.utils.UrlUtil;
+import com.fongmi.android.tv.utils.WebViewUtil;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Json;
 import com.github.catvod.utils.Util;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
+import okhttp3.Response;
 
 public class ParseJob implements ParseCallback {
 
@@ -112,12 +114,13 @@ public class ParseJob implements ParseCallback {
     }
 
     private void jsonParse(Parse item, String webUrl, boolean error) throws Exception {
-        String body = OkHttp.newCall(item.getUrl() + webUrl, Headers.of(item.getHeaders())).execute().body().string();
-        JsonObject object = Json.parse(body).getAsJsonObject();
-        String url = Json.safeString(object, "url");
-        JsonObject data = object.getAsJsonObject("data");
-        if (url.isEmpty()) url = Json.safeString(data, "url");
-        checkResult(getHeader(object), url, item.getName(), error);
+        try (Response res = OkHttp.newCall(item.getUrl() + webUrl, Headers.of(item.getHeaders())).execute()) {
+            JsonObject object = Json.parse(res.body().string()).getAsJsonObject();
+            String url = Json.safeString(object, "url");
+            JsonObject data = object.getAsJsonObject("data");
+            if (url.isEmpty()) url = Json.safeString(data, "url");
+            checkResult(getHeader(object), url, item.getName(), error);
+        }
     }
 
     private void jsonExtend(String webUrl) throws Throwable {
@@ -183,7 +186,11 @@ public class ParseJob implements ParseCallback {
     }
 
     private void startWeb(String key, String from, Map<String, String> headers, String url, String click) {
-        App.post(() -> webViews.add(CustomWebView.create(App.get()).start(key, from, headers, url, click, this, !url.contains("player/?url="))));
+        if (WebViewUtil.support()) {
+            App.post(() -> webViews.add(CustomWebView.create(App.get()).start(key, from, headers, url, click, this, !url.contains("player/?url="))));
+        } else {
+            onParseError();
+        }
     }
 
     private Map<String, String> getHeader(JsonObject object) {
@@ -211,6 +218,7 @@ public class ParseJob implements ParseCallback {
 
     private void stopWeb() {
         for (CustomWebView webView : webViews) webView.stop(false);
+        for (CustomWebView webView : webViews) webView.destroy();
         if (!webViews.isEmpty()) webViews.clear();
     }
 

@@ -3,6 +3,7 @@ package com.fongmi.android.tv.bean;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -13,17 +14,16 @@ import com.fongmi.android.tv.R;
 import com.fongmi.android.tv.api.loader.BaseLoader;
 import com.fongmi.android.tv.db.AppDatabase;
 import com.fongmi.android.tv.gson.ExtAdapter;
+import com.fongmi.android.tv.utils.UrlUtil;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.utils.Json;
+import com.github.catvod.utils.Trans;
 import com.google.common.net.HttpHeaders;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -116,14 +116,16 @@ public class Live {
     @Ignore
     private int width;
 
-    public static Live objectFrom(JsonElement element) {
-        return App.gson().fromJson(element, Live.class);
-    }
-
-    public static List<Live> arrayFrom(String str) {
-        Type listType = new TypeToken<List<Live>>() {}.getType();
-        List<Live> items = App.gson().fromJson(str, listType);
-        return items == null ? Collections.emptyList() : items;
+    public static Live objectFrom(JsonElement element, String spider) {
+        try {
+            Live live = App.gson().fromJson(element, Live.class);
+            if (live.getJar().isEmpty()) live.setJar(spider);
+            live.setApi(UrlUtil.convert(live.getApi()));
+            live.setExt(UrlUtil.convert(live.getExt()));
+            return live.trans();
+        } catch (Exception e) {
+            return new Live();
+        }
     }
 
     public static Live get(String name) {
@@ -321,9 +323,19 @@ public class Live {
         return this;
     }
 
+    public Live trans() {
+        if (Trans.pass()) return this;
+        setName(Trans.s2t(getName()));
+        return this;
+    }
+
     public Live sync() {
         Live item = find(getName());
-        if (item == null) return this;
+        if (item != null) sync(item);
+        return this;
+    }
+
+    public Live sync(Live item) {
         setBoot(item.isBoot());
         setPass(item.isPass());
         setKeep(item.getKeep());
@@ -347,6 +359,10 @@ public class Live {
         return headers;
     }
 
+    public static List<Live> findAll() {
+        return AppDatabase.get().getLiveDao().findAll();
+    }
+
     public static Live find(String name) {
         return AppDatabase.get().getLiveDao().find(name);
     }
@@ -356,10 +372,9 @@ public class Live {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof Live)) return false;
-        Live it = (Live) obj;
+        if (!(obj instanceof Live it)) return false;
         return getName().equals(it.getName());
     }
 }

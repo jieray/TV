@@ -5,20 +5,17 @@ plugins {
 android {
     namespace 'com.fongmi.android.tv.quickjs'
 
-    compileSdk 36
+    compileSdk = 36
 
     defaultConfig {
-        minSdk 21
-        targetSdk 28
-    }
-
-    lint {
-        disable 'UnsafeOptInUsageError'
+        minSdk 24
+        targetSdk 36
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
@@ -26,5 +23,5 @@ dependencies {
     implementation project(':catvod')
     implementation 'wang.harlon.quickjs:wrapper-java:3.2.3'
     implementation 'wang.harlon.quickjs:wrapper-android:3.2.3'
-    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.1.5'
 }

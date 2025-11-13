@@ -10,13 +10,17 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.provider.Settings;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.fongmi.android.tv.App;
 import com.fongmi.android.tv.BuildConfig;
@@ -26,6 +30,7 @@ import com.github.catvod.utils.Shell;
 import java.net.NetworkInterface;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
 
@@ -36,17 +41,24 @@ public class Util {
         else showSystemUI(activity);
     }
 
-    public static void showSystemUI(Activity activity) {
-        activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-    }
-
     public static void hideSystemUI(Activity activity) {
         hideSystemUI(activity.getWindow());
     }
 
     public static void hideSystemUI(Window window) {
-        int flags = View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        window.getDecorView().setSystemUiVisibility(flags);
+        WindowInsetsControllerCompat insets = WindowCompat.getInsetsController(window, window.getDecorView());
+        insets.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        insets.hide(WindowInsetsCompat.Type.systemBars());
+    }
+
+    public static void showSystemUI(Activity activity) {
+        showSystemUI(activity.getWindow());
+    }
+
+    public static void showSystemUI(Window window) {
+        WindowCompat.getInsetsController(window, window.getDecorView()).show(WindowInsetsCompat.Type.systemBars());
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     public static void showKeyboard(View view) {
@@ -66,7 +78,7 @@ public class Util {
         try {
             float value = activity.getWindow().getAttributes().screenBrightness;
             if (WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL >= value && value >= WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF) return value;
-            return Settings.System.getFloat(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS) / 128;
+            return Settings.System.getFloat(activity.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS) / 255;
         } catch (Exception e) {
             return 0.5f;
         }
@@ -96,6 +108,13 @@ public class Util {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    public static String clean(String text) {
+        StringBuilder sb = new StringBuilder();
+        text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY).toString().replace("\u00A0", "").replace("\u3000", "");
+        for (String line : text.split("\\r?\\n")) if (!line.isEmpty()) sb.append(line.trim()).append("\n");
+        return substring(sb.toString());
     }
 
     public static String getAndroidId() {
@@ -139,9 +158,16 @@ public class Util {
         return text;
     }
 
-    public static long format(String src, List<SimpleDateFormat> formats) {
-        for (SimpleDateFormat format : formats) try { return format.parse(src).getTime(); } catch (Exception ignored) {}
-        return 0;
+    public static Date parse(SimpleDateFormat format, String source) {
+        try {
+            return format.parse(source);
+        } catch (Exception e) {
+            return new Date(0);
+        }
+    }
+
+    public static long parse(List<SimpleDateFormat> formats, String source) {
+        return formats.stream().map(format -> parse(format, source)).map(Date::getTime).filter(time -> time > 0).findFirst().orElse(0L);
     }
 
     public static boolean isLeanback() {
@@ -168,10 +194,6 @@ public class Util {
                 components.add(new ComponentName(pkgName, resolveInfo.activityInfo.name));
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Intent.createChooser(intent, null).putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, components.toArray(new Parcelable[]{}));
-        } else {
-            return Intent.createChooser(intent, null);
-        }
+        return Intent.createChooser(intent, null).putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, components.toArray(new ComponentName[0]));
     }
 }

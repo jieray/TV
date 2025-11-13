@@ -30,7 +30,7 @@ import okhttp3.Request;
 public class Util {
 
     public static final String OKHTTP = "okhttp/" + OkHttp.VERSION;
-    public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+    public static final String CHROME = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
     public static final int URL_SAFE = Base64.DEFAULT | Base64.URL_SAFE | Base64.NO_WRAP;
 
     public static String base64(String s) {
@@ -90,7 +90,7 @@ public class Util {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             FileInputStream fis = new FileInputStream(file);
-            byte[] bytes = new byte[4096];
+            byte[] bytes = new byte[16384];
             int count;
             while ((count = fis.read(bytes)) != -1) digest.update(bytes, 0, count);
             fis.close();

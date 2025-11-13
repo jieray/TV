@@ -1,10 +1,11 @@
 package com.github.catvod.utils;
 
 import android.os.Environment;
-import android.util.Log;
 
 import com.github.catvod.Init;
+import com.orhanobut.logger.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,6 +27,10 @@ public class Path {
 
     public static boolean exists(String path) {
         return new File(path.replace("file://", "")).exists();
+    }
+
+    public static boolean exists(File file) {
+        return file != null && file.exists() && file.length() > 0;
     }
 
     public static File root() {
@@ -124,34 +129,33 @@ public class Path {
 
     public static String read(File file) {
         try {
-            return read(new FileInputStream(file));
-        } catch (Exception e) {
+            return new String(readToByte(file), StandardCharsets.UTF_8);
+        } catch (IOException e) {
             return "";
         }
     }
 
     public static String read(InputStream is) {
         try {
-            byte[] data = new byte[is.available()];
-            is.read(data);
-            is.close();
-            return new String(data, StandardCharsets.UTF_8);
+            return new String(readToByte(is), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
             return "";
         }
     }
 
-    public static byte[] readToByte(File file) {
-        try {
-            FileInputStream is = new FileInputStream(file);
-            byte[] data = new byte[is.available()];
-            is.read(data);
-            is.close();
-            return data;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
+    private static byte[] readToByte(File file) throws IOException {
+        try (FileInputStream is = new FileInputStream(file)) {
+            return readToByte(is);
+        }
+    }
+
+    private static byte[] readToByte(InputStream is) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            int read;
+            byte[] buffer = new byte[16384];
+            while ((read = is.read(buffer)) != -1) bos.write(buffer, 0, read);
+            return bos.toByteArray();
         }
     }
 
@@ -162,13 +166,14 @@ public class Path {
             fos.flush();
             fos.close();
             return file;
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return file;
         }
     }
 
     public static void move(File in, File out) {
+        if (in.renameTo(out)) return;
         copy(in, out);
         clear(in);
     }
@@ -176,19 +181,19 @@ public class Path {
     public static void copy(File in, File out) {
         try {
             copy(new FileInputStream(in), out);
-        } catch (Exception ignored) {
+        } catch (IOException ignored) {
         }
     }
 
     public static void copy(InputStream in, File out) {
         try {
             int read;
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[16384];
             FileOutputStream fos = new FileOutputStream(create(out));
             while ((read = in.read(buffer)) != -1) fos.write(buffer, 0, read);
             fos.close();
             in.close();
-        } catch (Exception ignored) {
+        } catch (IOException ignored) {
         }
     }
 
@@ -209,17 +214,21 @@ public class Path {
     public static void clear(File dir) {
         if (dir == null) return;
         if (dir.isDirectory()) for (File file : list(dir)) clear(file);
-        if (dir.delete()) Log.d(TAG, "Deleted:" + dir.getAbsolutePath());
+        if (dir.delete()) Logger.t(TAG).d("Deleted:" + dir);
     }
 
     public static File create(File file) {
         try {
-            if (file.getParentFile() != null) mkdir(file.getParentFile());
-            if (!file.canWrite()) file.setWritable(true);
-            if (!file.exists()) file.createNewFile();
+            File parent = file.getParentFile();
+            if (parent != null) mkdir(parent);
+            if (file.exists()) clear(file);
+            if (file.createNewFile()) Logger.t(TAG).d("Create:" + file);
+            file.setReadable(true);
+            file.setWritable(true);
+            file.setExecutable(true);
             Shell.exec("chmod 777 " + file);
             return file;
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return file;
         }

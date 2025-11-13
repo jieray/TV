@@ -4,7 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.impl.Diffable;
 import com.github.catvod.utils.Trans;
 import com.google.gson.annotations.SerializedName;
 
@@ -18,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Root(strict = false)
-public class Class implements Parcelable {
+public class Class implements Parcelable, Diffable<Class> {
 
     @Attribute(name = "id", required = false)
     @SerializedName(value = "type_id", alternate = "id")
@@ -140,11 +143,15 @@ public class Class implements Parcelable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof Class)) return false;
-        Class it = (Class) obj;
+        if (!(obj instanceof Class it)) return false;
         return getTypeId().equals(it.getTypeId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getTypeId().hashCode();
     }
 
     @Override
@@ -189,4 +196,14 @@ public class Class implements Parcelable {
             return new Class[size];
         }
     };
+
+    @Override
+    public boolean isSameItem(Class other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean isSameContent(Class other) {
+        return getTypeName().equals(other.getTypeName()) && getTypeFlag().equals(other.getTypeFlag());
+    }
 }

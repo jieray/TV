@@ -2,11 +2,16 @@ package com.fongmi.android.tv.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.fongmi.android.tv.App;
+import com.fongmi.android.tv.impl.Diffable;
 import com.fongmi.android.tv.utils.Sniffer;
+import com.fongmi.android.tv.utils.Util;
 import com.github.catvod.utils.Trans;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -20,9 +25,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Root(strict = false)
-public class Vod implements Parcelable {
+public class Vod implements Parcelable, Diffable<Vod> {
 
     @Element(name = "id", required = false)
     @SerializedName("vod_id")
@@ -118,7 +124,7 @@ public class Vod implements Parcelable {
     }
 
     public String getVodName() {
-        return TextUtils.isEmpty(vodName) ? "" : vodName.trim();
+        return TextUtils.isEmpty(vodName) ? "" : Html.fromHtml(vodName, Html.FROM_HTML_MODE_LEGACY).toString().trim();
     }
 
     public void setVodName(String vodName) {
@@ -153,12 +159,20 @@ public class Vod implements Parcelable {
         return TextUtils.isEmpty(vodDirector) ? "" : vodDirector.trim();
     }
 
+    public void setVodDirector(String vodDirector) {
+        this.vodDirector = vodDirector;
+    }
+
     public String getVodActor() {
         return TextUtils.isEmpty(vodActor) ? "" : vodActor.trim();
     }
 
     public String getVodContent() {
-        return TextUtils.isEmpty(vodContent) ? "" : vodContent.trim().replace("\n", "<br>");
+        return TextUtils.isEmpty(vodContent) ? "" : Util.clean(vodContent);
+    }
+
+    public void setVodContent(String vodContent) {
+        this.vodContent = vodContent;
     }
 
     public String getVodPlayFrom() {
@@ -290,11 +304,15 @@ public class Vod implements Parcelable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof Vod)) return false;
-        Vod it = (Vod) obj;
-        return getVodId().equals(it.getVodId());
+        if (!(obj instanceof Vod it)) return false;
+        return !getVodId().isEmpty() && !it.getVodId().isEmpty() ? getVodId().equals(it.getVodId()) : getVodName().equals(it.getVodName());
+    }
+
+    @Override
+    public int hashCode() {
+        return !getVodId().isEmpty() ? getVodId().hashCode() : getVodName().hashCode();
     }
 
     @Override
@@ -362,4 +380,14 @@ public class Vod implements Parcelable {
             return new Vod[size];
         }
     };
+
+    @Override
+    public boolean isSameItem(Vod other) {
+        return equals(other);
+    }
+
+    @Override
+    public boolean isSameContent(Vod other) {
+        return getVodName().equals(other.getVodName()) && getVodPic().equals(other.getVodPic()) && getVodRemarks().equals(other.getVodRemarks()) && Objects.equals(getSite(), other.getSite());
+    }
 }
