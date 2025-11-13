@@ -73,7 +73,7 @@ public class ConfigDialog {
     }
 
     private void initView() {
-        String hem = "https://gh-proxy.com/https://github.com/jieray/tvboxtg/blob/main/dx.json";
+        String hem = "https://tvb.hemu611.dpdns.org/tv.json";
         ori = TextUtils.isEmpty(Objects.requireNonNull(getConfig()).getUrl())?hem:getConfig().getUrl();
         binding.name.setText(getConfig().getName());
         binding.url.setText(ori);
